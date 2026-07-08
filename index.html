@@ -94,6 +94,36 @@
   footer{margin-top:34px;padding-top:16px;border-top:1px solid var(--linie);font-size:.78rem;color:var(--silber);text-align:center}
   footer b{color:var(--rot)}
   @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+  /* ---- Große Bildschirme: Laptop, PC, Beamer ---- */
+  @media (min-width:900px){
+    .wrap{max-width:1080px;padding:0 32px 80px}
+    header{padding:38px 0 22px}
+    h1{font-size:2.6rem;max-width:22ch}
+    .kicker{font-size:.8rem}
+    .meta{font-size:1rem}
+    .status{padding:18px 22px;font-size:1.05rem}
+    .status b{font-size:1.15rem}
+    .tabs{max-width:560px}
+    .tabs button{padding:14px 8px;font-size:1rem}
+
+    .tagkopf h2{font-size:1.7rem}
+    .tagkopf p{font-size:1.02rem}
+
+    /* Schritte nebeneinander statt untereinander */
+    .schritte{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+    .schritt{margin-bottom:0;padding:20px}
+    .schritt h3{font-size:1.12rem}
+    .schritt .was{font-size:.95rem}
+    .ziel{margin-top:24px;padding:18px 22px}
+    .ziel p{font-size:1rem}
+    .hinweis{font-size:.95rem;padding:14px 18px}
+    a.btn b{font-size:1rem}
+    a.btn span{font-size:.86rem}
+  }
+  @media (min-width:1200px){
+    h1{font-size:2.9rem}
+  }
 </style>
 </head>
 <body>
@@ -126,7 +156,8 @@
     <p>Erkenne Fälschungen, verstehe wie KI lernt, gründe dein Start-up.</p>
   </div>
 
-  <div class="schritt">
+  <div class="schritte">
+<div class="schritt">
     <div class="schritt-kopf"><span class="nr">1</span><h3>Echt oder Fake?</h3></div>
     <span class="sozial">Allein</span>
     <p class="was">Probiere die Quiz. Notiere auf deinem <b>Erkenntnisblatt</b>, woran du die Fälschung erkannt hast.</p>
@@ -169,6 +200,7 @@
         <b>Whiteboard in Teams</b><span>Ideen sammeln — Link folgt von der Lehrkraft.</span></a>
     </div>
   </div>
+  </div>
 
   <div class="ziel">
     <b>Geschafft, wenn …</b>
@@ -187,7 +219,8 @@
     <b>Die eine Regel:</b> Gib in KI-Tools <b>keine echten persönlichen Daten</b> ein — keine echten Namen, Fotos oder Stimmen. Ihr arbeitet mit eurer erfundenen Firma.
   </div>
 
-  <div class="schritt">
+  <div class="schritte">
+<div class="schritt">
     <div class="schritt-kopf"><span class="nr">1</span><h3>Tool-Messe</h3></div>
     <span class="sozial">Halbe Gruppe erklärt, halbe wandert</span>
     <p class="was">Eure Zone betreuen, die anderen besuchen. Laufzettel ausfüllen: mindestens ein Tool pro Zone.</p>
@@ -220,6 +253,7 @@
         <b>Kling <span style="color:var(--gelb);font-weight:700">optional</span></b><span>Nur, wenn ihr ein echtes Video wollt.</span></a>
     </div>
   </div>
+  </div>
 
   <div class="ziel">
     <b>Geschafft, wenn …</b>
@@ -234,7 +268,8 @@
     <p>Feinschliff, Generalprobe, Pitch vor der Jury.</p>
   </div>
 
-  <div class="schritt">
+  <div class="schritte">
+<div class="schritt">
     <div class="schritt-kopf"><span class="nr">1</span><h3>Feinschliff &amp; Probe</h3></div>
     <span class="sozial">Im Team</span>
     <p class="was">Wer sagt was? Sprecht den Pitch einmal laut durch. Ton und Datei vorher testen.</p>
@@ -273,6 +308,7 @@
         <b>Reflexion abgeben</b><span>Formular in Teams — Link folgt.</span></a>
     </div>
   </div>
+  </div>
 
   <div class="ziel">
     <b>Geschafft, wenn …</b>
@@ -287,6 +323,11 @@
 
 <script>
 (function(){
+  // Seite soll immer oben beginnen (nicht bei einem Abschnitt)
+  if ('scrollRestoration' in history) { history.scrollRestoration = 'manual'; }
+  var ausHash = (location.hash.match(/^#tag([123])$/)||[])[1];
+  if (location.hash) { try { history.replaceState(null,'',location.pathname + location.search); } catch(e){} }
+
   var TAGE = { 1:"2026-07-13", 2:"2026-07-14", 3:"2026-07-15" };
   var tabs = document.querySelectorAll('.tabs button');
 
@@ -294,7 +335,6 @@
     document.querySelectorAll('.tag').forEach(function(s){ s.classList.remove('aktiv'); });
     document.getElementById('tag'+n).classList.add('aktiv');
     tabs.forEach(function(b){ b.setAttribute('aria-selected', b.dataset.tag === String(n)); });
-    try { history.replaceState(null,'','#tag'+n); } catch(e){}
   }
   tabs.forEach(function(b){ b.addEventListener('click', function(){ zeige(b.dataset.tag); }); });
 
@@ -309,10 +349,11 @@
   var titel = document.getElementById('statusTitel');
   var text  = document.getElementById('statusText');
 
-  var ausHash = (location.hash.match(/^#tag([123])$/)||[])[1];
   if (ausHash){ zeige(ausHash); }
   else if (h){ zeige(h); }
   else { zeige(1); }
+
+  window.scrollTo(0,0);
 
   if (h){
     titel.textContent = 'Heute ist Tag ' + h;
