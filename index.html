@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KI-Projekttage · BK Deutzer Freiheit</title>
+<style>
+  :root{
+    --rot:#E30613; --rot-dk:#B00510; --anthra:#1F1F1F;
+    --silber:#9A9A9A; --grau:#6E6E6E; --hell:#F4F4F4; --linie:#E2E2E2;
+    --gruen:#2F7D4F; --gelb:#B5820A;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    color:var(--anthra); background:#fff; line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:640px;margin:0 auto;padding:0 18px 60px}
+
+  /* Kopf */
+  header{border-bottom:3px solid var(--rot);padding:22px 0 16px;margin-bottom:20px}
+  .kicker{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--rot);font-weight:700}
+  h1{font-size:1.65rem;line-height:1.2;margin:6px 0 6px;letter-spacing:-.01em}
+  .meta{font-size:.9rem;color:var(--grau)}
+
+  /* Countdown / Statusleiste */
+  .status{
+    background:var(--anthra);color:#fff;border-radius:var(--radius);
+    padding:14px 16px;margin:18px 0 22px;display:flex;gap:14px;align-items:center;
+  }
+  .status .puls{width:10px;height:10px;border-radius:50%;background:var(--rot);flex:none;
+    box-shadow:0 0 0 0 rgba(227,6,19,.7);animation:puls 2s infinite}
+  @keyframes puls{70%{box-shadow:0 0 0 12px rgba(227,6,19,0)}100%{box-shadow:0 0 0 0 rgba(227,6,19,0)}}
+  .status b{display:block;font-size:1rem}
+  .status span{font-size:.85rem;color:#cfcfcf}
+
+  /* Tages-Umschalter */
+  .tabs{display:flex;gap:8px;margin-bottom:22px}
+  .tabs button{
+    flex:1;padding:12px 6px;border:1.5px solid var(--linie);background:#fff;
+    border-radius:var(--radius);font:inherit;font-weight:600;font-size:.9rem;
+    color:var(--grau);cursor:pointer;transition:.15s;
+  }
+  .tabs button small{display:block;font-weight:400;font-size:.72rem;color:var(--silber)}
+  .tabs button[aria-selected="true"]{background:var(--rot);border-color:var(--rot);color:#fff}
+  .tabs button[aria-selected="true"] small{color:#ffd6d9}
+  .tabs button:focus-visible{outline:3px solid var(--anthra);outline-offset:2px}
+
+  /* Schritte */
+  .tag{display:none}
+  .tag.aktiv{display:block;animation:rein .25s ease-out}
+  @keyframes rein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .tagkopf{margin-bottom:16px}
+  .tagkopf h2{font-size:1.25rem;letter-spacing:-.01em}
+  .tagkopf p{color:var(--grau);font-size:.92rem;margin-top:2px}
+
+  .schritt{border:1px solid var(--linie);border-radius:var(--radius);padding:16px 16px 14px;margin-bottom:14px}
+  .schritt-kopf{display:flex;gap:12px;align-items:baseline;margin-bottom:6px}
+  .nr{font-weight:800;color:var(--rot);font-size:.95rem;flex:none;min-width:22px}
+  .schritt h3{font-size:1.02rem;font-weight:700}
+  .schritt .was{font-size:.9rem;color:var(--grau);margin:0 0 12px 34px}
+  .schritt .sozial{
+    display:inline-block;margin:0 0 10px 34px;font-size:.7rem;letter-spacing:.06em;
+    text-transform:uppercase;font-weight:700;color:var(--grau);
+    background:var(--hell);border-radius:6px;padding:3px 8px;
+  }
+
+  /* Buttons */
+  .btns{display:grid;gap:9px;margin-left:34px}
+  a.btn{
+    display:block;text-decoration:none;border:1.5px solid var(--linie);
+    border-radius:10px;padding:12px 14px;color:var(--anthra);transition:.15s;background:#fff;
+  }
+  a.btn:hover,a.btn:focus-visible{border-color:var(--rot);transform:translateX(2px)}
+  a.btn:focus-visible{outline:3px solid var(--anthra);outline-offset:2px}
+  a.btn b{display:block;font-size:.98rem}
+  a.btn span{display:block;font-size:.82rem;color:var(--grau);margin-top:1px}
+  a.btn.haupt{background:var(--rot);border-color:var(--rot)}
+  a.btn.haupt b{color:#fff}
+  a.btn.haupt span{color:#ffdadd}
+  a.btn.haupt:hover{background:var(--rot-dk)}
+
+  /* Hinweisbox */
+  .hinweis{border-left:5px solid var(--rot);background:var(--hell);border-radius:8px;padding:12px 14px;margin:16px 0;font-size:.88rem}
+  .hinweis b{color:var(--rot-dk)}
+
+  /* Abschluss */
+  .ziel{border:2px dashed var(--rot);border-radius:var(--radius);padding:14px 16px;margin-top:18px;background:#fff8f8}
+  .ziel b{color:var(--rot-dk);display:block;margin-bottom:4px;font-size:.95rem}
+  .ziel p{font-size:.9rem;color:var(--anthra)}
+
+  footer{margin-top:34px;padding-top:16px;border-top:1px solid var(--linie);font-size:.78rem;color:var(--silber);text-align:center}
+  footer b{color:var(--rot)}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="kicker">Projekttage · 13.–15. Juli 2026 · Raum A 111</div>
+  <h1>ChatGPT &amp; Co.<br>Wie verändert KI Schule und Beruf?</h1>
+  <div class="meta">Berufskolleg Deutzer Freiheit · Höhle der Löwen am Berufskolleg</div>
+</header>
+
+<div class="status">
+  <div class="puls"></div>
+  <div>
+    <b id="statusTitel">Willkommen!</b>
+    <span id="statusText">Wähle unten deinen Tag.</span>
+  </div>
+</div>
+
+<div class="tabs" role="tablist">
+  <button role="tab" data-tag="1" aria-selected="false">Tag 1<small>Verstehen</small></button>
+  <button role="tab" data-tag="2" aria-selected="false">Tag 2<small>Bauen</small></button>
+  <button role="tab" data-tag="3" aria-selected="false">Tag 3<small>Pitchen</small></button>
+</div>
+
+<!-- ================= TAG 1 ================= -->
+<section class="tag" id="tag1" role="tabpanel">
+  <div class="tagkopf">
+    <h2>Tag 1 — Durchschaue die KI</h2>
+    <p>Erkenne Fälschungen, verstehe wie KI lernt, gründe dein Start-up.</p>
+  </div>
+
+  <div class="schritt">
+    <div class="schritt-kopf"><span class="nr">1</span><h3>Echt oder Fake?</h3></div>
+    <span class="sozial">Allein</span>
+    <p class="was">Probiere die Quiz. Notiere auf deinem <b>Erkenntnisblatt</b>, woran du die Fälschung erkannt hast.</p>
+    <div class="btns">
+      <a class="btn haupt" href="https://www.whichfaceisreal.com" target="_blank" rel="noopener">
+        <b>Welches Gesicht ist echt?</b><span>Zwei Fotos — nur eines ist ein echter Mensch.</span></a>
+      <a class="btn" href="https://www.planet-schule.de" target="_blank" rel="noopener">
+        <b>Fakefinder (Planet Schule)</b><span>Fake News auf TikTok &amp; WhatsApp entlarven.</span></a>
+    </div>
+  </div>
+
+  <div class="schritt">
+    <div class="schritt-kopf"><span class="nr">2</span><h3>Bring der KI etwas bei</h3></div>
+    <span class="sozial">Zu zweit</span>
+    <p class="was">Trainiere ein eigenes Modell — mit Absicht schlecht. Du wirst sehen, wie es versagt.</p>
+    <div class="btns">
+      <a class="btn haupt" href="https://teachablemachine.withgoogle.com" target="_blank" rel="noopener">
+        <b>Teachable Machine</b><span>Kein Login. Folge der Karte in deinem Heft.</span></a>
+    </div>
+  </div>
+
+  <div class="schritt">
+    <div class="schritt-kopf"><span class="nr">3</span><h3>KI-Ertappt!</h3></div>
+    <span class="sozial">Zu zweit</span>
+    <p class="was">Stelle Fangfragen und erwische die KI beim Schwindeln. Alles ins Protokoll.</p>
+    <div class="btns">
+      <a class="btn haupt" href="https://go.fobizz.com" target="_blank" rel="noopener">
+        <b>Fobizz öffnen</b><span>Dein persönlicher Code steht auf deinem Zettel.</span></a>
+      <a class="btn" href="https://ais.chat" target="_blank" rel="noopener">
+        <b>AIS.chat</b><span>Alternative: die NRW-Landeslösung.</span></a>
+    </div>
+  </div>
+
+  <div class="schritt">
+    <div class="schritt-kopf"><span class="nr">4</span><h3>Gründet euer Start-up</h3></div>
+    <span class="sozial">Im Team</span>
+    <p class="was">Wählt ein Problem aus dem Menü (Beruf oder Schule) und füllt den Steckbrief aus.</p>
+    <div class="btns">
+      <a class="btn" href="#" target="_blank" rel="noopener">
+        <b>Whiteboard in Teams</b><span>Ideen sammeln — Link folgt von der Lehrkraft.</span></a>
+    </div>
+  </div>
+
+  <div class="ziel">
+    <b>Geschafft, wenn …</b>
+    <p>… euer <b>Start-up-Steckbrief</b> ausgefüllt ist und die Lehrkraft ihn abgenickt hat.</p>
+  </div>
+</section>
+
+<!-- ================= TAG 2 ================= -->
+<section class="tag" id="tag2" role="tabpanel">
+  <div class="tagkopf">
+    <h2>Tag 2 — Baut euer Start-up</h2>
+    <p>Erst die Werkzeuge kennenlernen, dann produzieren.</p>
+  </div>
+
+  <div class="hinweis">
+    <b>Die eine Regel:</b> Gib in KI-Tools <b>keine echten persönlichen Daten</b> ein — keine echten Namen, Fotos oder Stimmen. Ihr arbeitet mit eurer erfundenen Firma.
+  </div>
+
+  <div class="schritt">
+    <div class="schritt-kopf"><span class="nr">1</span><h3>Tool-Messe</h3></div>
+    <span class="sozial">Halbe Gruppe erklärt, halbe wandert</span>
+    <p class="was">Eure Zone betreuen, die anderen besuchen. Laufzettel ausfüllen: mindestens ein Tool pro Zone.</p>
+    <div class="btns">
+      <a class="btn haupt" href="https://go.fobizz.com" target="_blank" rel="noopener">
+        <b>Fobizz öffnen</b><span>Text, Bild und Stimme — alles an einem Ort.</span></a>
+    </div>
+  </div>
+
+  <div class="schritt">
+    <div class="schritt-kopf"><span class="nr">2</span><h3>Ampelspiel</h3></div>
+    <span class="sozial">Im Team</span>
+    <p class="was">Darf ich das nutzen? Zehn Situationen, drei Farben. Danach: eure eigenen Regeln aufschreiben.</p>
+    <div class="btns">
+      <a class="btn" href="#" onclick="return false">
+        <b>Kein Link nötig</b><span>Ihr arbeitet mit den Karten aus dem Heft.</span></a>
+    </div>
+  </div>
+
+  <div class="schritt">
+    <div class="schritt-kopf"><span class="nr">3</span><h3>Produktion</h3></div>
+    <span class="sozial">Im Team</span>
+    <p class="was">Erst Inhalt, dann Deko. Logo, Werbespot, Stimme, Folien — die Checkliste führt euch.</p>
+    <div class="btns">
+      <a class="btn haupt" href="https://go.fobizz.com" target="_blank" rel="noopener">
+        <b>Fobizz</b><span>Logo, Text und KI-Stimme für euren Spot.</span></a>
+      <a class="btn" href="https://gamma.app" target="_blank" rel="noopener">
+        <b>Gamma</b><span>Baut aus Stichpunkten euer Pitch-Deck.</span></a>
+      <a class="btn" href="https://klingai.com" target="_blank" rel="noopener">
+        <b>Kling <span style="color:var(--gelb);font-weight:700">optional</span></b><span>Nur, wenn ihr ein echtes Video wollt.</span></a>
+    </div>
+  </div>
+
+  <div class="ziel">
+    <b>Geschafft, wenn …</b>
+    <p>… Logo, Spot und Pitch-Deck stehen — und eure <b>Offenlegung</b> ausgefüllt ist.</p>
+  </div>
+</section>
+
+<!-- ================= TAG 3 ================= -->
+<section class="tag" id="tag3" role="tabpanel">
+  <div class="tagkopf">
+    <h2>Tag 3 — Höhle der Löwen</h2>
+    <p>Feinschliff, Generalprobe, Pitch vor der Jury.</p>
+  </div>
+
+  <div class="schritt">
+    <div class="schritt-kopf"><span class="nr">1</span><h3>Feinschliff &amp; Probe</h3></div>
+    <span class="sozial">Im Team</span>
+    <p class="was">Wer sagt was? Sprecht den Pitch einmal laut durch. Ton und Datei vorher testen.</p>
+    <div class="btns">
+      <a class="btn" href="#" target="_blank" rel="noopener">
+        <b>Sprechercoach in Teams</b><span>Übe privat: Tempo, Füllwörter, Blickkontakt.</span></a>
+    </div>
+  </div>
+
+  <div class="schritt">
+    <div class="schritt-kopf"><span class="nr">2</span><h3>Euer Pitch</h3></div>
+    <span class="sozial">Im Team</span>
+    <p class="was">5 Minuten: Problem, Lösung, zeigen — und die ehrliche Offenlegung. Dann fragt die Jury nach.</p>
+    <div class="btns">
+      <a class="btn haupt" href="#" onclick="return false">
+        <b>Jede:r im Team redet</b><span>Verteilt die Rollen, bevor ihr vorn steht.</span></a>
+    </div>
+  </div>
+
+  <div class="schritt">
+    <div class="schritt-kopf"><span class="nr">3</span><h3>Zeigt eure Ergebnisse</h3></div>
+    <span class="sozial">Im Team</span>
+    <p class="was">Ladet Logo und Spot auf die Pinnwand — dort sehen alle, was ihr gebaut habt.</p>
+    <div class="btns">
+      <a class="btn haupt" href="#" target="_blank" rel="noopener">
+        <b>Zur Pinnwand (Edumaps)</b><span>Link folgt von der Lehrkraft.</span></a>
+    </div>
+  </div>
+
+  <div class="schritt">
+    <div class="schritt-kopf"><span class="nr">4</span><h3>Reflexion</h3></div>
+    <span class="sozial">Allein</span>
+    <p class="was">Wie verändert KI Beruf — und Schule? Was nimmst du mit? Ehrliches Feedback an uns.</p>
+    <div class="btns">
+      <a class="btn" href="#" target="_blank" rel="noopener">
+        <b>Reflexion abgeben</b><span>Formular in Teams — Link folgt.</span></a>
+    </div>
+  </div>
+
+  <div class="ziel">
+    <b>Geschafft, wenn …</b>
+    <p>… ihr gepitcht habt und deine <b>Reflexion</b> abgegeben ist. Dann seid ihr KI-Profis.</p>
+  </div>
+</section>
+
+<footer>
+  Berufskolleg Deutzer Freiheit · Europaschule · <b>Gemeinsam. Besser. Lernen.</b>
+</footer>
+</div>
+
+<script>
+(function(){
+  var TAGE = { 1:"2026-07-13", 2:"2026-07-14", 3:"2026-07-15" };
+  var tabs = document.querySelectorAll('.tabs button');
+
+  function zeige(n){
+    document.querySelectorAll('.tag').forEach(function(s){ s.classList.remove('aktiv'); });
+    document.getElementById('tag'+n).classList.add('aktiv');
+    tabs.forEach(function(b){ b.setAttribute('aria-selected', b.dataset.tag === String(n)); });
+    try { history.replaceState(null,'','#tag'+n); } catch(e){}
+  }
+  tabs.forEach(function(b){ b.addEventListener('click', function(){ zeige(b.dataset.tag); }); });
+
+  // Welcher Tag ist heute?
+  function heute(){
+    var d = new Date();
+    var s = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    for (var n in TAGE){ if (TAGE[n] === s) return Number(n); }
+    return null;
+  }
+  var h = heute();
+  var titel = document.getElementById('statusTitel');
+  var text  = document.getElementById('statusText');
+
+  var ausHash = (location.hash.match(/^#tag([123])$/)||[])[1];
+  if (ausHash){ zeige(ausHash); }
+  else if (h){ zeige(h); }
+  else { zeige(1); }
+
+  if (h){
+    titel.textContent = 'Heute ist Tag ' + h;
+    text.textContent  = 'Arbeite dich von oben nach unten durch.';
+  } else {
+    var start = new Date('2026-07-13T08:00:00');
+    var diff  = Math.ceil((start - new Date()) / 86400000);
+    if (diff > 0){
+      titel.textContent = 'Noch ' + diff + (diff === 1 ? ' Tag' : ' Tage') + ' bis zum Start';
+      text.textContent  = 'Überleg dir schon ein Problem, das KI lösen könnte.';
+    } else {
+      titel.textContent = 'Die Projekttage sind vorbei';
+      text.textContent  = 'Alle Materialien bleiben hier für dich stehen.';
+    }
+  }
+})();
+</script>
+</body>
+</html>
