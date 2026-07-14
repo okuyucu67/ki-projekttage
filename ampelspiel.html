@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ampelspiel · KI-Projekttage</title>
+<style>
+  :root{
+    --rot:#E30613; --rot-dk:#B00510; --anthra:#1F1F1F;
+    --gelb:#C9902B; --gruen:#2F7D4F;
+    --silber:#9A9A9A; --grau:#6E6E6E; --hell:#F4F4F4; --linie:#E2E2E2; --radius:14px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--anthra);background:#fff;line-height:1.55;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:760px;margin:0 auto;padding:0 18px 70px}
+  header{border-bottom:3px solid var(--rot);padding:22px 0 16px;margin-bottom:16px}
+  .kicker{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--rot);font-weight:700}
+  h1{font-size:1.6rem;line-height:1.2;margin:6px 0}
+  .intro{background:var(--hell);border-left:5px solid var(--rot);border-radius:8px;padding:14px 16px;margin-bottom:10px;font-size:.95rem}
+  .intro b{color:var(--rot-dk)}
+  .legende{display:flex;gap:16px;flex-wrap:wrap;margin:12px 0 4px;font-size:.9rem;font-weight:600}
+  .legende span{display:inline-flex;align-items:center;gap:7px}
+  .pill{width:14px;height:14px;border-radius:50%;display:inline-block}
+  .r{background:var(--rot)} .y{background:var(--gelb)} .g{background:var(--gruen)}
+  .fortschritt{font-size:.85rem;color:var(--grau);margin:14px 0 18px;font-weight:600}
+
+  .karte{border:1px solid var(--linie);border-radius:var(--radius);padding:16px 16px 14px;margin-bottom:14px}
+  .karte .nr{font-weight:800;color:var(--rot);font-size:.9rem}
+  .karte p{margin:4px 0 14px;font-size:1.02rem}
+  .wahl{display:flex;gap:8px}
+  .wahl button{flex:1;padding:12px 6px;border:1.5px solid var(--linie);background:#fff;border-radius:10px;font:inherit;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:.12s}
+  .wahl button:hover{border-color:var(--anthra)}
+  .wahl button:disabled{cursor:default;opacity:.55}
+  .wahl button .pill{width:16px;height:16px}
+  .wahl button.gewaehlt{border-width:2px}
+  .wahl button.gewaehlt.rot{border-color:var(--rot)} 
+  .wahl button.gewaehlt.gelb{border-color:var(--gelb)}
+  .wahl button.gewaehlt.gruen{border-color:var(--gruen)}
+
+  .loesung{margin-top:12px;border-radius:10px;padding:12px 14px;font-size:.94rem;display:none;animation:rein .2s ease-out}
+  .loesung.show{display:block}
+  @keyframes rein{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .loesung .badge{font-weight:800;text-transform:uppercase;font-size:.78rem;letter-spacing:.05em;padding:3px 10px;border-radius:20px;color:#fff}
+  .loesung.rot{background:#fdecee} .loesung.rot .badge{background:var(--rot)}
+  .loesung.gelb{background:#fbf3e4} .loesung.gelb .badge{background:var(--gelb)}
+  .loesung.gruen{background:#e9f4ee} .loesung.gruen .badge{background:var(--gruen)}
+  .loesung .treffer{font-weight:700;margin-left:8px}
+  .loesung .warum{margin-top:6px;color:var(--anthra)}
+
+  .abschluss{border:2px dashed var(--rot);border-radius:var(--radius);padding:16px 18px;margin-top:20px;background:#fff8f8}
+  .abschluss b{color:var(--rot-dk)}
+  footer{margin-top:30px;padding-top:16px;border-top:1px solid var(--linie);font-size:.78rem;color:var(--silber);text-align:center}
+  footer b{color:var(--rot)}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="kicker">Tag 2 · Pflichtstation</div>
+    <h1>Ampelspiel — Darf ich das nutzen?</h1>
+  </header>
+
+  <div class="intro">
+    <b>So geht's:</b> Lest jede Situation und <b>besprecht sie zuerst in der Gruppe</b>. Tippt dann gemeinsam auf eure Antwort – die Lösung erscheint sofort mit einer kurzen Begründung.
+  </div>
+  <div class="legende">
+    <span><i class="pill g"></i> grün = erlaubt</span>
+    <span><i class="pill y"></i> gelb = erst prüfen</span>
+    <span><i class="pill r"></i> rot = besser nicht</span>
+  </div>
+  <div class="fortschritt" id="fortschritt">0 von 10 geprüft</div>
+
+  <div id="liste"></div>
+
+  <div class="abschluss">
+    <b>Zum Schluss:</b> Schreibt <b>2–3 Regeln</b> in eure Laufmappe (Feld 4), die für eure Produktion wichtig sind. Zum Beispiel: „Keine fremden Stimmen klonen.“
+  </div>
+
+  <footer>Berufskolleg Deutzer Freiheit · Europaschule · <b>Gemeinsam. Besser. Lernen.</b></footer>
+</div>
+
+<script>
+var DATEN = [
+  {t:"Ihr klont die Stimme eines bekannten YouTubers für euren Werbespot.", c:"R", w:"Fremde Stimme = Persönlichkeitsrecht. Ohne Einwilligung tabu."},
+  {t:"Ihr erstellt euer Logo mit Adobe Firefly und nutzt es für euer Start-up.", c:"G", w:"Firefly ist auf kommerzielle Nutzung ausgelegt – Bedingungen trotzdem kurz prüfen."},
+  {t:"Ihr nehmt ein Foto einer echten Mitschülerin und lasst die KI sie „euer Produkt empfehlen“.", c:"R", w:"Recht am eigenen Bild. Ohne Einwilligung nicht erlaubt."},
+  {t:"Die KI nennt euch eine Statistik. Ihr zeigt sie im Pitch, ohne sie zu prüfen.", c:"Y", w:"Könnte eine Halluzination sein – erst die Quelle prüfen, sonst nicht zeigen."},
+  {t:"Ihr generiert ein Hintergrundbild und nutzt es nur intern für die Schulpräsentation.", c:"G", w:"Schulische, interne Nutzung, kein Verkauf. Tool-Bedingungen beachten."},
+  {t:"Ihr legt einen fremden Chart-Song als Musik unter euren Spot.", c:"R", w:"Musik ist urheberrechtlich geschützt. Nutzt lizenzfreie oder KI-Musik."},
+  {t:"Ihr behauptet im Pitch „von Experten getestet“ – obwohl das nicht stimmt.", c:"R", w:"Irreführung. Ehrlichkeit ist Pflicht – auch im Pitch."},
+  {t:"KI hilft beim Werbetext, ihr überarbeitet ihn danach selbst.", c:"G", w:"KI als Werkzeug, ihr prüft und gestaltet selbst. Völlig okay."},
+  {t:"Ihr nutzt ein KI-Bild, wisst aber nicht, ob das Tool kommerzielle Nutzung erlaubt.", c:"Y", w:"Erst die Nutzungsbedingungen checken, dann entscheiden."},
+  {t:"Ihr gebt im KI-Chat echte Namen und Adressen von Mitschüler:innen ein.", c:"R", w:"Datenschutz. Keine echten personenbezogenen Daten in KI-Tools eingeben."}
+];
+var NAME = {R:"Rot", Y:"Gelb", G:"Grün"};
+var KLASSE = {R:"rot", Y:"gelb", G:"gruen"};
+var PILL = {R:"r", Y:"y", G:"g"};
+var geprueft = 0;
+
+var liste = document.getElementById("liste");
+DATEN.forEach(function(d, i){
+  var karte = document.createElement("div");
+  karte.className = "karte";
+  karte.innerHTML =
+    '<div class="nr">SITUATION ' + (i+1) + '</div>' +
+    '<p>' + d.t + '</p>' +
+    '<div class="wahl">' +
+      '<button data-w="R"><i class="pill r"></i>Rot</button>' +
+      '<button data-w="Y"><i class="pill y"></i>Gelb</button>' +
+      '<button data-w="G"><i class="pill g"></i>Grün</button>' +
+    '</div>' +
+    '<div class="loesung ' + KLASSE[d.c] + '" id="loes'+i+'">' +
+      '<span class="badge">' + NAME[d.c] + '</span>' +
+      '<span class="treffer" id="tref'+i+'"></span>' +
+      '<div class="warum">' + d.w + '</div>' +
+    '</div>';
+  liste.appendChild(karte);
+
+  var knoepfe = karte.querySelectorAll(".wahl button");
+  knoepfe.forEach(function(btn){
+    btn.addEventListener("click", function(){
+      var wahl = btn.getAttribute("data-w");
+      knoepfe.forEach(function(b){ b.disabled = true; });
+      btn.classList.add("gewaehlt", KLASSE[wahl]);
+      var tref = document.getElementById("tref"+i);
+      tref.textContent = (wahl === d.c) ? "Richtig!" : "Nicht ganz – richtig ist:";
+      tref.style.color = (wahl === d.c) ? "var(--gruen)" : "var(--rot)";
+      document.getElementById("loes"+i).classList.add("show");
+      geprueft++;
+      document.getElementById("fortschritt").textContent = geprueft + " von 10 geprüft";
+    });
+  });
+});
+</script>
+</body>
+</html>
