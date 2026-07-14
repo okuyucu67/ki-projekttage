@@ -161,6 +161,17 @@
     line-height:1.4;
     color:var(--ink);
   }
+  .card .zugang{
+    font-size:0.76rem;
+    background:#FBEAEC;
+    border-left:3px solid #E30613;
+    padding:6px 9px;
+    margin-bottom:10px;
+    line-height:1.4;
+    color:#1F1F1F;
+    border-radius:3px;
+  }
+  .card .zugang b{ color:#B00510; }
   .card .meta{display:flex;justify-content:space-between;align-items:center;font-size:0.72rem;color:var(--ink-soft);font-family:'IBM Plex Mono',monospace;}
   .card a.go{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--ink);}
   .card .del{
@@ -244,6 +255,8 @@
     <textarea id="f_desc" placeholder="Was macht das Tool?"></textarea>
     <label>Unterrichtseinsatz</label>
     <textarea id="f_use" placeholder="Konkretes Beispiel für den Unterricht"></textarea>
+    <label>Zugang (Anmeldung? Gratis-Credits? Pro nötig?)</label>
+    <textarea id="f_access" placeholder="z.B. Konto nötig. Gratis nur Chat; Bild/Video nur mit Pro."></textarea>
     <div class="row">
       <div>
         <label>Kosten</label>
@@ -296,59 +309,60 @@ const CATS = [
 ];
 
 const SEED = [
-  {id:'s1',name:'ChatGPT',cat:'text',desc:'Vielseitiger Chat-Assistent für Text, Recherche und Brainstorming.',use:'Differenzierte Aufgaben (BASIC/PLUS) für IFK-Klassen vorbereiten lassen.',cost:'freemium',dsgvo:'US-Server',url:'https://chat.openai.com'},
-  {id:'s2',name:'Claude',cat:'text',desc:'KI-Assistent, stark bei langen Dokumenten und strukturiertem Schreiben.',use:'Bildungsgangkonferenz-Protokolle aus Audiotranskripten rekonstruieren.',cost:'freemium',dsgvo:'US-Server',url:'https://claude.ai'},
-  {id:'s3',name:'AIS.chat',cat:'text',desc:'DSGVO-konformer Chat-Zugang für Schulen in NRW.',use:'Direkter Einsatz mit Schüler:innen ohne Datenschutz-Bedenken.',cost:'kostenlos',dsgvo:'EU-Server',url:'https://ais.chat'},
-  {id:'s4',name:'DeepL Write', cat:'text',desc:'Stil- und Grammatikkorrektur für deutsche und englische Texte.',use:'Schülertexte vor Abgabe sprachlich überarbeiten lassen (A2-Niveau).',cost:'freemium',dsgvo:'EU-Server',url:'https://www.deepl.com/write'},
-  {id:'s5',name:'NotebookLM',cat:'text',desc:'Fasst hochgeladene Dokumente zusammen und beantwortet Fragen dazu.',use:'Aus einer Fallstudie (z.B. Amir/KölnHandel) automatisch Lernkarten erzeugen.',cost:'kostenlos',dsgvo:'US-Server',url:'https://notebooklm.google'},
+  {id:'s1',name:'ChatGPT',cat:'text',desc:'Vielseitiger Chat-Assistent für Text, Recherche und Brainstorming.',use:'Differenzierte Aufgaben (BASIC/PLUS) für IFK-Klassen vorbereiten lassen.',cost:'freemium',dsgvo:'US-Server',url:'https://chat.openai.com',access:'Konto nötig. Gratis: Chat + begrenzte Bildgenerierung. Höhere Limits & beste Modelle mit Plus-Abo.'},
+  {id:'s2',name:'Claude',cat:'text',desc:'KI-Assistent, stark bei langen Dokumenten und strukturiertem Schreiben.',use:'Bildungsgangkonferenz-Protokolle aus Audiotranskripten rekonstruieren.',cost:'freemium',dsgvo:'US-Server',url:'https://claude.ai',access:'Konto nötig. Gratis: Chat mit Tageslimit. Mehr mit Pro-Abo.'},
+  {id:'s3',name:'AIS.chat',cat:'text',desc:'DSGVO-konformer Chat-Zugang für Schulen in NRW.',use:'Direkter Einsatz mit Schüler:innen ohne Datenschutz-Bedenken.',cost:'kostenlos',dsgvo:'EU-Server',url:'https://ais.chat',access:'Kostenlos für NRW-Schulen: Login per Code oder VIDIS, keine private Anmeldung.'},
+  {id:'s4',name:'DeepL Write', cat:'text',desc:'Stil- und Grammatikkorrektur für deutsche und englische Texte.',use:'Schülertexte vor Abgabe sprachlich überarbeiten lassen (A2-Niveau).',cost:'freemium',dsgvo:'EU-Server',url:'https://www.deepl.com/write',access:'Gratis nutzbar (Textlänge begrenzt); mehr mit Pro-Abo.'},
+  {id:'s5',name:'NotebookLM',cat:'text',desc:'Fasst hochgeladene Dokumente zusammen und beantwortet Fragen dazu.',use:'Aus einer Fallstudie (z.B. Amir/KölnHandel) automatisch Lernkarten erzeugen.',cost:'kostenlos',dsgvo:'US-Server',url:'https://notebooklm.google',access:'Kostenlos mit Google-Konto.'},
 
-  {id:'b1',name:'Midjourney',cat:'bild',desc:'Hochwertige KI-Bildgenerierung über Discord/Web.',use:'Illustrationen für Arbeitsblätter oder fiktive Firmenlogos (Kölner Fallstudien).',cost:'kostenpflichtig',dsgvo:'US-Server',url:'https://www.midjourney.com'},
-  {id:'b2',name:'Adobe Firefly',cat:'bild',desc:'Bildgenerierung mit kommerziell unbedenklicher Lizenz.',use:'Bildmaterial für Präsentationen, das rechtlich sicher verwendbar ist.',cost:'freemium',dsgvo:'US-Server',url:'https://firefly.adobe.com'},
-  {id:'b3',name:'Microsoft Designer',cat:'bild',desc:'Bild- und Grafikgenerator, in Microsoft 365 integriert.',use:'Schnelle Grafiken für Handouts direkt in PowerPoint/Word.',cost:'freemium',dsgvo:'US-Server',url:'https://designer.microsoft.com'},
+  {id:'b1',name:'Midjourney',cat:'bild',desc:'Hochwertige KI-Bildgenerierung über Discord/Web.',use:'Illustrationen für Arbeitsblätter oder fiktive Firmenlogos (Kölner Fallstudien).',cost:'kostenpflichtig',dsgvo:'US-Server',url:'https://www.midjourney.com',access:'Kein Gratis-Tarif. Nur mit Abo (ab ~10 $/Monat).'},
+  {id:'b2',name:'Adobe Firefly',cat:'bild',desc:'Bildgenerierung mit kommerziell unbedenklicher Lizenz.',use:'Bildmaterial für Präsentationen, das rechtlich sicher verwendbar ist.',cost:'freemium',dsgvo:'US-Server',url:'https://firefly.adobe.com',access:'Konto nötig. Gratis: begrenzte monatliche Credits; danach Abo. Kommerziell nutzbar. Stand prüfen.'},
+  {id:'b3',name:'Microsoft Designer',cat:'bild',desc:'Bild- und Grafikgenerator, in Microsoft 365 integriert.',use:'Schnelle Grafiken für Handouts direkt in PowerPoint/Word.',cost:'freemium',dsgvo:'US-Server',url:'https://designer.microsoft.com',access:'Kostenlos mit Microsoft-Konto (Nutzungslimits).'},
 
-  {id:'v1',name:'HeyGen',cat:'video',desc:'Erzeugt Avatar-Videos aus Text inkl. Lippen-Synchronisation.',use:'Kurze Erklärvideos für den Flipped-Classroom-Einsatz erstellen.',cost:'freemium',dsgvo:'US-Server',url:'https://www.heygen.com'},
-  {id:'v2',name:'CapCut', cat:'video',desc:'Videoschnitt mit KI-Funktionen (Untertitel, Schnitt, Effekte).',use:'Schülerprojekte (z.B. Präsentationsvideos) einfach nachbearbeiten.',cost:'freemium',dsgvo:'US-Server',url:'https://www.capcut.com'},
-  {id:'v3',name:'Runway',cat:'video',desc:'KI-Videogenerierung und -bearbeitung (Text-zu-Video).',use:'Kurze Demo-Szenen für Unterrichtsbeispiele generieren.',cost:'freemium',dsgvo:'US-Server',url:'https://runwayml.com'},
+  {id:'v1',name:'HeyGen',cat:'video',desc:'Erzeugt Avatar-Videos aus Text inkl. Lippen-Synchronisation.',use:'Kurze Erklärvideos für den Flipped-Classroom-Einsatz erstellen.',cost:'freemium',dsgvo:'US-Server',url:'https://www.heygen.com',access:'Konto nötig. Gratis-Kontingent (kurze Videos, Wasserzeichen); mehr mit Abo.'},
+  {id:'v2',name:'CapCut', cat:'video',desc:'Videoschnitt mit KI-Funktionen (Untertitel, Schnitt, Effekte).',use:'Schülerprojekte (z.B. Präsentationsvideos) einfach nachbearbeiten.',cost:'freemium',dsgvo:'US-Server',url:'https://www.capcut.com',access:'Konto nötig. Basis gratis; viele KI-Funktionen nur mit Pro.'},
+  {id:'v3',name:'Runway',cat:'video',desc:'KI-Videogenerierung und -bearbeitung (Text-zu-Video).',use:'Kurze Demo-Szenen für Unterrichtsbeispiele generieren.',cost:'freemium',dsgvo:'US-Server',url:'https://runwayml.com',access:'Konto nötig. Gratis: 125 einmalige Credits (kein Refresh); danach Abo.'},
 
-  {id:'a1',name:'ElevenLabs',cat:'audio',desc:'Realistische KI-Sprachsynthese und Stimmklonung.',use:'Hörtexte für IFK/DaZ-Materialien in mehreren Sprachen vertonen.',cost:'freemium',dsgvo:'US-Server',url:'https://elevenlabs.io'},
-  {id:'a2',name:'Suno',cat:'audio',desc:'Erzeugt vollständige Songs aus Textprompts.',use:'Merksätze als Lernsong vertonen (z.B. für jüngere Klassen).',cost:'freemium',dsgvo:'US-Server',url:'https://suno.com'},
+  {id:'a1',name:'ElevenLabs',cat:'audio',desc:'Realistische KI-Sprachsynthese und Stimmklonung.',use:'Hörtexte für IFK/DaZ-Materialien in mehreren Sprachen vertonen.',cost:'freemium',dsgvo:'US-Server',url:'https://elevenlabs.io',access:'Konto nötig. Gratis: begrenztes Monats-Kontingent Sprache (mit Namensnennung, nicht kommerziell); mehr mit Abo. Stand prüfen.'},
+  {id:'a2',name:'Suno',cat:'audio',desc:'Erzeugt vollständige Songs aus Textprompts.',use:'Merksätze als Lernsong vertonen (z.B. für jüngere Klassen).',cost:'freemium',dsgvo:'US-Server',url:'https://suno.com',access:'Konto nötig. Gratis: tägliche Credits (wenige Songs, nicht kommerziell); mehr mit Abo.'},
 
-  {id:'c1',name:'GitHub Copilot',cat:'code',desc:'KI-Codevervollständigung direkt im Editor.',use:'Bei der Weiterentwicklung von DJTP oder Automatisierungs-Skripten unterstützen.',cost:'kostenpflichtig',dsgvo:'US-Server',url:'https://github.com/features/copilot'},
-  {id:'c2',name:'Cursor',cat:'code',desc:'KI-first Code-Editor auf VS-Code-Basis.',use:'Größere Refactorings am docx-Generator-Workflow durchführen.',cost:'freemium',dsgvo:'US-Server',url:'https://cursor.sh'},
+  {id:'c1',name:'GitHub Copilot',cat:'code',desc:'KI-Codevervollständigung direkt im Editor.',use:'Bei der Weiterentwicklung von DJTP oder Automatisierungs-Skripten unterstützen.',cost:'kostenpflichtig',dsgvo:'US-Server',url:'https://github.com/features/copilot',access:'Konto nötig. Kostenlos für verifizierte Schüler/Lehrkräfte & mit Gratis-Kontingent; sonst Abo.'},
+  {id:'c2',name:'Cursor',cat:'code',desc:'KI-first Code-Editor auf VS-Code-Basis.',use:'Größere Refactorings am docx-Generator-Workflow durchführen.',cost:'freemium',dsgvo:'US-Server',url:'https://cursor.sh',access:'Konto nötig. Gratis-Tarif mit Limit; Pro-Abo für mehr.'},
 
-  {id:'p1',name:'Gamma',cat:'praesentation',desc:'Erstellt Präsentationen/Webseiten aus Stichpunkten.',use:'Schnellentwurf für Elternabend- oder Konferenz-Folien.',cost:'freemium',dsgvo:'US-Server',url:'https://gamma.app'},
-  {id:'p2',name:'Beautiful.ai',cat:'praesentation',desc:'Automatisch layoutete Folien mit smarten Templates.',use:'Einheitliches Design für die AG-KI-Präsentationsreihe.',cost:'kostenpflichtig',dsgvo:'US-Server',url:'https://www.beautiful.ai'},
+  {id:'p1',name:'Gamma',cat:'praesentation',desc:'Erstellt Präsentationen/Webseiten aus Stichpunkten.',use:'Schnellentwurf für Elternabend- oder Konferenz-Folien.',cost:'freemium',dsgvo:'US-Server',url:'https://gamma.app',access:'Gratis: 400 einmalige Credits (~8-10 Decks, „Made with Gamma“-Logo, nur PDF-Export). Kein Monats-Refresh.'},
+  {id:'p2',name:'Beautiful.ai',cat:'praesentation',desc:'Automatisch layoutete Folien mit smarten Templates.',use:'Einheitliches Design für die AG-KI-Präsentationsreihe.',cost:'kostenpflichtig',dsgvo:'US-Server',url:'https://www.beautiful.ai',access:'Konto nötig. Kein dauerhafter Gratis-Tarif – nur Test, dann Abo. Stand prüfen.'},
 
-  {id:'o1',name:'Fobizz KI-Tools',cat:'sonstiges',desc:'Sammlung schulspezifischer KI-Werkzeuge (Feedback, Aufgaben, Chat).',use:'Zentraler Schüler-Hub für die AI-Projekttage nutzen.',cost:'kostenpflichtig',dsgvo:'EU-Server',url:'https://fobizz.com'},
-  {id:'o2',name:'Perplexity',cat:'sonstiges',desc:'KI-Suchmaschine mit Quellenangaben.',use:'Schüler:innen recherchieren mit Quellenprüfung für Referate.',cost:'freemium',dsgvo:'US-Server',url:'https://www.perplexity.ai'},
+  {id:'o1',name:'Fobizz KI-Tools',cat:'sonstiges',desc:'Sammlung schulspezifischer KI-Werkzeuge (Feedback, Aufgaben, Chat).',use:'Zentraler Schüler-Hub für die AI-Projekttage nutzen.',cost:'kostenpflichtig',dsgvo:'EU-Server',url:'https://fobizz.com',access:'Über eure Schul-Klasse: Login per Code, keine eigene Anmeldung. Umfang je Schul-Lizenz.'},
+  {id:'o2',name:'Perplexity',cat:'sonstiges',desc:'KI-Suchmaschine mit Quellenangaben.',use:'Schüler:innen recherchieren mit Quellenprüfung für Referate.',cost:'freemium',dsgvo:'US-Server',url:'https://www.perplexity.ai',access:'Konto nötig. Gratis nutzbar; Pro-Suche & beste Modelle mit Abo.'},
 
   // --- ergänzt nach Abgleich mit lookkle.com Verzeichnis (Juli 2026) ---
-  {id:'l1',name:'Google Gemini',cat:'text',desc:'Google-Chatbot mit Workspace-Integration (Docs, Sheets, Gmail).',use:'Gemeinsam mit Kolleg:innen in Google Docs Unterrichtsentwürfe direkt kommentieren lassen.',cost:'freemium',dsgvo:'US-Server',url:'https://gemini.google.com'},
-  {id:'l2',name:'Consensus',cat:'text',desc:'Durchsucht wissenschaftliche Studien und zeigt den Grad der Übereinstimmung an.',use:'Für die OBAS-Ausbildung fachdidaktische Thesen mit Studienlage abgleichen.',cost:'freemium',dsgvo:'US-Server',url:'https://consensus.app'},
-  {id:'l3',name:'Grammarly',cat:'text',desc:'Grammatik- und Stilkorrektur für englische (und deutsche) Texte.',use:'Englische Aufgabenstellungen für HHS vor Ausgabe gegenprüfen.',cost:'freemium',dsgvo:'US-Server',url:'https://grammarly.com'},
-  {id:'l4',name:'Google Translate',cat:'text',desc:'Kostenlose, unbegrenzte Maschinenübersetzung in viele Sprachen.',use:'Schnelle Erstübersetzung von Materialien für IFK-Klassen mit vielen Herkunftssprachen.',cost:'kostenlos',dsgvo:'US-Server',url:'https://translate.google.com'},
+  {id:'l1',name:'Google Gemini',cat:'text',desc:'Google-Chatbot mit Workspace-Integration (Docs, Sheets, Gmail).',use:'Gemeinsam mit Kolleg:innen in Google Docs Unterrichtsentwürfe direkt kommentieren lassen.',cost:'freemium',dsgvo:'US-Server',url:'https://gemini.google.com',access:'Kostenlos: Chat + einfache Bilder (Wasserzeichen, Tageslimit). Video & bestes Bildmodell nur mit Pro-Abo (ab 18). Stand prüfen.'},
+  {id:'l2',name:'Consensus',cat:'text',desc:'Durchsucht wissenschaftliche Studien und zeigt den Grad der Übereinstimmung an.',use:'Für die OBAS-Ausbildung fachdidaktische Thesen mit Studienlage abgleichen.',cost:'freemium',dsgvo:'US-Server',url:'https://consensus.app',access:'Konto nötig. Gratis-Kontingent an Suchen; mehr mit Abo.'},
+  {id:'l3',name:'Grammarly',cat:'text',desc:'Grammatik- und Stilkorrektur für englische (und deutsche) Texte.',use:'Englische Aufgabenstellungen für HHS vor Ausgabe gegenprüfen.',cost:'freemium',dsgvo:'US-Server',url:'https://grammarly.com',access:'Gratis-Version (Basis-Korrektur); erweiterte KI-Funktionen mit Premium.'},
+  {id:'l4',name:'Google Translate',cat:'text',desc:'Kostenlose, unbegrenzte Maschinenübersetzung in viele Sprachen.',use:'Schnelle Erstübersetzung von Materialien für IFK-Klassen mit vielen Herkunftssprachen.',cost:'kostenlos',dsgvo:'US-Server',url:'https://translate.google.com',access:'Kostenlos, ohne Anmeldung.'},
 
-  {id:'l5',name:'Leonardo.Ai',cat:'bild',desc:'Großzügiges Gratis-Kontingent für hochwertige Bildgenerierung, kommerziell nutzbar.',use:'Illustrationen für Arbeitsblätter, die auch veröffentlicht werden dürfen.',cost:'freemium',dsgvo:'US-Server',url:'https://leonardo.ai'},
-  {id:'l6',name:'Recraft',cat:'bild',desc:'Einziges gängiges Tool mit kostenloser Vektorgrafik-(SVG)-Generierung.',use:'Skalierbare Icons/Logos für fiktive Übungsfirmen (z.B. KölnHandel GmbH) erstellen.',cost:'freemium',dsgvo:'US-Server',url:'https://recraft.ai'},
-  {id:'l7',name:'Ideogram',cat:'bild',desc:'Spezialisiert auf korrekte Textwiedergabe innerhalb generierter Bilder.',use:'Plakate/Schilder mit exaktem deutschen Text für Rollenspiel-Materialien erzeugen.',cost:'freemium',dsgvo:'US-Server',url:'https://ideogram.ai'},
-  {id:'l8',name:'Nano Banana Pro',cat:'bild',desc:'Fotorealistisches Bildmodell von Google, übersetzt auch Text in Bildern.',use:'Fotorealistische Szenenbilder für Fallstudien-Kontexte generieren.',cost:'kostenlos',dsgvo:'US-Server',url:'https://gemini.google.com'},
+  {id:'l5',name:'Leonardo.Ai',cat:'bild',desc:'Großzügiges Gratis-Kontingent für hochwertige Bildgenerierung, kommerziell nutzbar.',use:'Illustrationen für Arbeitsblätter, die auch veröffentlicht werden dürfen.',cost:'freemium',dsgvo:'US-Server',url:'https://leonardo.ai',access:'Konto nötig. Gratis: tägliche Token für Bilder; mehr mit Abo.'},
+  {id:'l6',name:'Recraft',cat:'bild',desc:'Einziges gängiges Tool mit kostenloser Vektorgrafik-(SVG)-Generierung.',use:'Skalierbare Icons/Logos für fiktive Übungsfirmen (z.B. KölnHandel GmbH) erstellen.',cost:'freemium',dsgvo:'US-Server',url:'https://recraft.ai',access:'Konto nötig. Gratis: tägliches Bild-Kontingent; mehr mit Abo.'},
+  {id:'l7',name:'Ideogram',cat:'bild',desc:'Spezialisiert auf korrekte Textwiedergabe innerhalb generierter Bilder.',use:'Plakate/Schilder mit exaktem deutschen Text für Rollenspiel-Materialien erzeugen.',cost:'freemium',dsgvo:'US-Server',url:'https://ideogram.ai',access:'Konto nötig. Gratis: begrenzte, langsamere Generierungen pro Tag; mehr mit Abo.'},
+  {id:'l8',name:'Nano Banana Pro',cat:'bild',desc:'Fotorealistisches Bildmodell von Google, übersetzt auch Text in Bildern.',use:'Fotorealistische Szenenbilder für Fallstudien-Kontexte generieren.',cost:'kostenlos',dsgvo:'US-Server',url:'https://gemini.google.com',access:'Googles Top-Bildmodell. Nur mit Gemini-Bezahl-Abo (Free-Tarif: nur einfaches Bildmodell).'},
 
-  {id:'l9',name:'InVideo AI',cat:'video',desc:'Erstellt komplette Videos aus Text inkl. automatischem Schnitt und Sprachausgabe.',use:'Ganze Erklärvideo-Sequenz aus einem Unterrichtsskript generieren lassen.',cost:'freemium',dsgvo:'US-Server',url:'https://invideo.ai'},
-  {id:'l10',name:'Gemini Veo 3.1',cat:'video',desc:'Googles Videomodell für kurze, realistische Clips (4–8 Sek.).',use:'Kurze B-Roll-Clips als Einstieg in Präsentationen einbauen.',cost:'freemium',dsgvo:'US-Server',url:'https://gemini.google.com'},
-  {id:'l11',name:'Kling AI',cat:'video',desc:'Starker Freemium-Bewegungsgenerator, gut bei komplexen Interaktionen.',use:'Realistische Beispielszenen (z.B. Kundengespräch im Einzelhandel) visualisieren.',cost:'freemium',dsgvo:'US-Server',url:'https://klingai.com'},
+  {id:'l9',name:'InVideo AI',cat:'video',desc:'Erstellt komplette Videos aus Text inkl. automatischem Schnitt und Sprachausgabe.',use:'Ganze Erklärvideo-Sequenz aus einem Unterrichtsskript generieren lassen.',cost:'freemium',dsgvo:'US-Server',url:'https://invideo.ai',access:'Konto nötig. Gratis mit Wasserzeichen & Wochen-Limit; mehr mit Abo.'},
+  {id:'l10',name:'Gemini Veo 3.1',cat:'video',desc:'Googles Videomodell für kurze, realistische Clips (4–8 Sek.).',use:'Kurze B-Roll-Clips als Einstieg in Präsentationen einbauen.',cost:'freemium',dsgvo:'US-Server',url:'https://gemini.google.com',access:'Video-Modell. Nur mit Gemini-Bezahl-Abo, nicht im Free-Tarif (ab 18).'},
+  {id:'l11',name:'Kling AI',cat:'video',desc:'Starker Freemium-Bewegungsgenerator, gut bei komplexen Interaktionen.',use:'Realistische Beispielszenen (z.B. Kundengespräch im Einzelhandel) visualisieren.',cost:'freemium',dsgvo:'US-Server',url:'https://klingai.com',access:'Anmeldung nötig. Gratis: 66 Credits/Tag (~6 kurze Clips, Wasserzeichen, nicht kommerziell). Ohne Wasserzeichen: Abo ab ~7 €/Monat.'},
 
-  {id:'l12',name:'Google Antigravity',cat:'code',desc:'Agentenbasierte IDE, in der KI-Agenten selbstständig Code planen und testen.',use:'Bei DJTP-Weiterentwicklung komplexere Automatisierungen agentisch umsetzen lassen.',cost:'kostenlos',dsgvo:'US-Server',url:'https://antigravity.dev'},
-  {id:'l13',name:'Replit AI',cat:'code',desc:'Browserbasierte Entwicklungsumgebung mit KI-Unterstützung, kein Setup nötig.',use:'Mit Schüler:innen ohne lokale Installation kleine Programmierprojekte umsetzen.',cost:'freemium',dsgvo:'US-Server',url:'https://replit.com'},
-  {id:'l14',name:'DataCamp DataLab',cat:'code',desc:'Browserbasierte Datenanalyse-Umgebung mit KI-Assistent, keine Python-Installation nötig.',use:'Für den Literacy-Tracking-Workflow Datenauswertungen ohne lokale Umgebung testen.',cost:'freemium',dsgvo:'US-Server',url:'https://www.datacamp.com/datalab'},
+  {id:'l12',name:'Google Antigravity',cat:'code',desc:'Agentenbasierte IDE, in der KI-Agenten selbstständig Code planen und testen.',use:'Bei DJTP-Weiterentwicklung komplexere Automatisierungen agentisch umsetzen lassen.',cost:'kostenlos',dsgvo:'US-Server',url:'https://antigravity.dev',access:'Entwickler-Tool. Konto nötig; Verfügbarkeit & Umfang vorher prüfen.'},
+  {id:'l13',name:'Replit AI',cat:'code',desc:'Browserbasierte Entwicklungsumgebung mit KI-Unterstützung, kein Setup nötig.',use:'Mit Schüler:innen ohne lokale Installation kleine Programmierprojekte umsetzen.',cost:'freemium',dsgvo:'US-Server',url:'https://replit.com',access:'Konto nötig. Gratis-Tarif eingeschränkt; KI-Funktionen v.a. im Abo.'},
+  {id:'l14',name:'DataCamp DataLab',cat:'code',desc:'Browserbasierte Datenanalyse-Umgebung mit KI-Assistent, keine Python-Installation nötig.',use:'Für den Literacy-Tracking-Workflow Datenauswertungen ohne lokale Umgebung testen.',cost:'freemium',dsgvo:'US-Server',url:'https://www.datacamp.com/datalab',access:'Konto nötig. Gratis-Version begrenzt; voller Umfang mit Abo/Campus-Lizenz.'},
 
-  {id:'l15',name:'Whisper (OpenAI)',cat:'audio',desc:'Open-Source-Spracherkennung, lokal oder in Google Colab nutzbar, unbegrenzt.',use:'Audiotranskripte für Konferenzprotokolle selbst und kostenlos erzeugen.',cost:'kostenlos',dsgvo:'unklar',url:'https://github.com/openai/whisper'},
-  {id:'l16',name:'Otter.ai',cat:'audio',desc:'Automatische Mitschrift von Besprechungen inkl. Sprechererkennung.',use:'AG-KI-Sitzungen live mitschreiben lassen, danach manuell nachschärfen.',cost:'freemium',dsgvo:'US-Server',url:'https://otter.ai'},
-  {id:'l17',name:'Adobe Podcast Enhance',cat:'audio',desc:'Entfernt Hintergrundgeräusche/Hall aus Audioaufnahmen.',use:'Handy-Mitschnitte von Unterrichtsbesuchen vor der Weiterverarbeitung säubern.',cost:'freemium',dsgvo:'US-Server',url:'https://podcast.adobe.com'},
+  {id:'l15',name:'Whisper (OpenAI)',cat:'audio',desc:'Open-Source-Spracherkennung, lokal oder in Google Colab nutzbar, unbegrenzt.',use:'Audiotranskripte für Konferenzprotokolle selbst und kostenlos erzeugen.',cost:'kostenlos',dsgvo:'unklar',url:'https://github.com/openai/whisper',access:'Open-Source, kostenlos – aber technisch (lokal/Code). Kein fertiges Web-Tool.'},
+  {id:'l16',name:'Otter.ai',cat:'audio',desc:'Automatische Mitschrift von Besprechungen inkl. Sprechererkennung.',use:'AG-KI-Sitzungen live mitschreiben lassen, danach manuell nachschärfen.',cost:'freemium',dsgvo:'US-Server',url:'https://otter.ai',access:'Konto nötig. Gratis: monatliche Transkriptions-Minuten; mehr mit Abo.'},
+  {id:'l17',name:'Adobe Podcast Enhance',cat:'audio',desc:'Entfernt Hintergrundgeräusche/Hall aus Audioaufnahmen.',use:'Handy-Mitschnitte von Unterrichtsbesuchen vor der Weiterverarbeitung säubern.',cost:'freemium',dsgvo:'US-Server',url:'https://podcast.adobe.com',access:'Kostenlos mit Adobe-Konto (Nutzungslimits).'},
 
-  {id:'l18',name:'Canva AI',cat:'praesentation',desc:'Design-Tool mit KI-Funktionen für Folien, Grafiken und Layouts.',use:'Einheitliches, ansprechendes Layout für Elternabend- und AG-Materialien.',cost:'freemium',dsgvo:'US-Server',url:'https://canva.com'},
+  {id:'l18',name:'Canva AI',cat:'praesentation',desc:'Design-Tool mit KI-Funktionen für Folien, Grafiken und Layouts.',use:'Einheitliches, ansprechendes Layout für Elternabend- und AG-Materialien.',cost:'freemium',dsgvo:'US-Server',url:'https://canva.com',access:'Konto nötig. Viel gratis; Teile der Magic-KI nur mit Pro. Für Schulen teils kostenlos.'},
 
-  {id:'l19',name:'Notion AI',cat:'sonstiges',desc:'Notizen/Projektmanagement mit KI-Zusammenfassungen und Aufgabenlisten.',use:'Offene Punkte aus DJTP (M4–M6) und OBAS-Vorbereitung strukturiert verwalten.',cost:'freemium',dsgvo:'US-Server',url:'https://notion.so'},
-  {id:'l20',name:'WolframAlpha',cat:'sonstiges',desc:'Rechenmaschine für Mathematik, Statistik und exakte Fachfragen.',use:'Finanzmathematische Aufgaben (Lernfeld 7, Investition/Finanzierung) gegenrechnen.',cost:'freemium',dsgvo:'unklar',url:'https://www.wolframalpha.com'},
+  {id:'l19',name:'Notion AI',cat:'sonstiges',desc:'Notizen/Projektmanagement mit KI-Zusammenfassungen und Aufgabenlisten.',use:'Offene Punkte aus DJTP (M4–M6) und OBAS-Vorbereitung strukturiert verwalten.',cost:'freemium',dsgvo:'US-Server',url:'https://notion.so',access:'Konto nötig. KI ist kostenpflichtiger Zusatz zum (teils gratis) Notion.'},
+  {id:'l20',name:'WolframAlpha',cat:'sonstiges',desc:'Rechenmaschine für Mathematik, Statistik und exakte Fachfragen.',use:'Finanzmathematische Aufgaben (Lernfeld 7, Investition/Finanzierung) gegenrechnen.',cost:'freemium',dsgvo:'unklar',url:'https://www.wolframalpha.com',access:'Basis gratis, ohne Anmeldung; Schritt-für-Schritt-Lösungen nur mit Pro.'},
+  {id:'l21',name:'Creative Fabrica Studio',cat:'bild',desc:'Browser-Design-Studio mit KI (Bild, Video, Audio, 3D) und riesiger Vorlagen- und Font-Bibliothek.',use:'Logos, Poster und Social-Media-Grafiken fürs Start-up gestalten (mit kommerzieller Lizenz).',cost:'kostenpflichtig',dsgvo:'unklar',url:'https://studio.creativefabrica.com',access:'Konto nötig. 30-Tage-Test mit 25.000 Coins, danach kostenpflichtig (All-Access-Abo). Kommerzielle Lizenz inklusive.'},
 ];
 
 let tools = [];
@@ -359,17 +373,17 @@ function catInfo(id){ return CATS.find(c=>c.id===id) || {label:id,color:'var(--c
 
 async function loadTools(){
   try{
-    const raw = localStorage.getItem('ki_tools');
+    const raw = localStorage.getItem('ki_tools_v2');
     tools = raw ? JSON.parse(raw) : null;
   }catch(e){ tools = null; }
   if(!tools || !tools.length){
     tools = SEED.slice();
-    try{ localStorage.setItem('ki_tools', JSON.stringify(tools)); }catch(e){}
+    try{ localStorage.setItem('ki_tools_v2', JSON.stringify(tools)); }catch(e){}
   }
 }
 
 async function saveTools(){
-  try{ localStorage.setItem('ki_tools', JSON.stringify(tools)); }catch(e){}
+  try{ localStorage.setItem('ki_tools_v2', JSON.stringify(tools)); }catch(e){}
 }
 
 function renderTabs(){
@@ -405,6 +419,7 @@ function renderBoard(){
       <h3>${escapeHtml(t.name)}</h3>
       <p class="desc">${escapeHtml(t.desc)}</p>
       <div class="usecase">${escapeHtml(t.use)}</div>
+      ${t.access ? `<div class="zugang"><b>Zugang:</b> ${escapeHtml(t.access)}</div>` : ''}
       <div class="meta">
         <span>${t.cost} · ${t.dsgvo}</span>
         ${t.url ? `<a class="go" href="${escapeAttr(t.url)}" target="_blank">öffnen ↗</a>` : ''}
@@ -442,6 +457,7 @@ document.getElementById('saveBtn').onclick = async ()=>{
     cat: document.getElementById('f_cat').value,
     desc: document.getElementById('f_desc').value.trim(),
     use: document.getElementById('f_use').value.trim(),
+    access: document.getElementById('f_access').value.trim(),
     cost: document.getElementById('f_cost').value,
     dsgvo: document.getElementById('f_dsgvo').value,
     url: document.getElementById('f_url').value.trim(),
@@ -449,7 +465,7 @@ document.getElementById('saveBtn').onclick = async ()=>{
   tools.push(newTool);
   await saveTools();
   overlay.classList.remove('show');
-  ['f_name','f_desc','f_use','f_url'].forEach(id=>document.getElementById(id).value='');
+  ['f_name','f_desc','f_use','f_access','f_url'].forEach(id=>document.getElementById(id).value='');
   renderBoard();
 };
 
