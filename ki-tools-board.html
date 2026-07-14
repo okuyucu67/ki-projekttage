@@ -359,17 +359,17 @@ function catInfo(id){ return CATS.find(c=>c.id===id) || {label:id,color:'var(--c
 
 async function loadTools(){
   try{
-    const res = await window.storage.get('tools', false);
-    tools = res ? JSON.parse(res.value) : null;
+    const raw = localStorage.getItem('ki_tools');
+    tools = raw ? JSON.parse(raw) : null;
   }catch(e){ tools = null; }
-  if(!tools){
-    tools = SEED;
-    await window.storage.set('tools', JSON.stringify(tools), false);
+  if(!tools || !tools.length){
+    tools = SEED.slice();
+    try{ localStorage.setItem('ki_tools', JSON.stringify(tools)); }catch(e){}
   }
 }
 
 async function saveTools(){
-  await window.storage.set('tools', JSON.stringify(tools), false);
+  try{ localStorage.setItem('ki_tools', JSON.stringify(tools)); }catch(e){}
 }
 
 function renderTabs(){
