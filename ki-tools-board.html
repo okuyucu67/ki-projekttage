@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>KI-Werkzeugkasten</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --board: #3b4a52;
+    --board-line: rgba(255,255,255,0.06);
+    --paper: #faf7f0;
+    --ink: #24302f;
+    --ink-soft: #5b6664;
+    --pin: #b5493f;
+    --tab-text: #2f3b39;
+    --c-text: #e8c34a;
+    --c-bild: #7fb0a3;
+    --c-video: #d67d5c;
+    --c-audio: #9a8fc4;
+    --c-code: #6ba0c9;
+    --c-praesentation: #d99bb0;
+    --c-sonstiges: #b8b0a0;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(ellipse at 20% 10%, rgba(255,255,255,0.03), transparent 40%),
+      var(--board);
+    background-image:
+      repeating-linear-gradient(var(--board-line) 0 1px, transparent 1px 28px),
+      repeating-linear-gradient(90deg, var(--board-line) 0 1px, transparent 1px 28px);
+    font-family:'IBM Plex Sans', sans-serif;
+    color:var(--ink);
+    padding:28px 20px 60px;
+    min-height:100vh;
+  }
+  .board-head{
+    max-width:1100px;
+    margin:0 auto 22px;
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:12px;
+  }
+  h1{
+    font-family:'Fraunces', serif;
+    font-weight:700;
+    font-size:2.1rem;
+    color:#f4f0e6;
+    margin:0;
+    letter-spacing:-0.01em;
+  }
+  .sub{color:#c9d2ce;font-size:0.9rem;margin-top:4px;}
+  .toolbar{
+    max-width:1100px;
+    margin:0 auto 20px;
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    align-items:center;
+  }
+  input[type=text]{
+    font-family:'IBM Plex Mono', monospace;
+    padding:9px 12px;
+    border-radius:3px;
+    border:1px solid rgba(255,255,255,0.15);
+    background:rgba(255,255,255,0.08);
+    color:#f4f0e6;
+    font-size:0.85rem;
+    min-width:220px;
+  }
+  input[type=text]::placeholder{color:#a9b3af;}
+  .tabs{
+    max-width:1100px;
+    margin:0 auto 24px;
+    display:flex;
+    gap:6px;
+    flex-wrap:wrap;
+  }
+  .tab{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.78rem;
+    padding:6px 12px;
+    border-radius:14px;
+    background:rgba(255,255,255,0.08);
+    color:#e4e9e6;
+    cursor:pointer;
+    border:1px solid transparent;
+    user-select:none;
+  }
+  .tab.active{background:#f4f0e6;color:var(--tab-text);font-weight:600;}
+  .tab .dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px;vertical-align:middle;}
+
+  button.btn{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.8rem;
+    padding:9px 14px;
+    border-radius:3px;
+    border:1px solid rgba(255,255,255,0.2);
+    background:rgba(255,255,255,0.08);
+    color:#f4f0e6;
+    cursor:pointer;
+  }
+  button.btn:hover{background:rgba(255,255,255,0.16);}
+  button.btn.primary{background:var(--pin);border-color:var(--pin);}
+  button.btn.primary:hover{background:#96382f;}
+
+  .board{
+    max-width:1100px;
+    margin:0 auto;
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(230px, 1fr));
+    gap:22px;
+  }
+  .card{
+    background:var(--paper);
+    border-radius:2px;
+    padding:16px 15px 14px;
+    position:relative;
+    box-shadow:0 10px 18px -8px rgba(0,0,0,0.45), 0 2px 4px rgba(0,0,0,0.15);
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .card:nth-child(3n+1){transform:rotate(-0.6deg);}
+  .card:nth-child(3n+2){transform:rotate(0.4deg);}
+  .card:nth-child(3n){transform:rotate(-0.2deg);}
+  .card:hover{transform:rotate(0deg) translateY(-3px);box-shadow:0 16px 24px -10px rgba(0,0,0,0.5);}
+  .pin{
+    position:absolute;
+    top:-9px;left:50%;transform:translateX(-50%);
+    width:14px;height:14px;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, #e07567, var(--pin));
+    box-shadow:0 3px 4px rgba(0,0,0,0.4);
+  }
+  .cat-flag{
+    display:inline-block;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.65rem;
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+    padding:2px 7px;
+    border-radius:2px;
+    color:#26302e;
+    margin-bottom:8px;
+  }
+  .card h3{
+    font-family:'Fraunces', serif;
+    font-size:1.15rem;
+    margin:0 0 6px;
+    font-weight:600;
+  }
+  .card p.desc{font-size:0.83rem;color:var(--ink-soft);margin:0 0 8px;line-height:1.4;}
+  .card .usecase{
+    font-size:0.78rem;
+    background:rgba(0,0,0,0.045);
+    border-left:2px solid var(--pin);
+    padding:6px 8px;
+    margin-bottom:10px;
+    line-height:1.4;
+    color:var(--ink);
+  }
+  .card .meta{display:flex;justify-content:space-between;align-items:center;font-size:0.72rem;color:var(--ink-soft);font-family:'IBM Plex Mono',monospace;}
+  .card a.go{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--ink);}
+  .card .del{
+    position:absolute;top:6px;right:8px;
+    font-size:0.7rem;color:#b8b0a0;cursor:pointer;background:none;border:none;
+    opacity:0;transition:opacity .15s;
+  }
+  .card:hover .del{opacity:1;}
+
+  .empty{
+    grid-column:1/-1;text-align:center;color:#c9d2ce;
+    font-family:'IBM Plex Mono',monospace;padding:40px 0;
+  }
+
+  /* modal */
+  .overlay{
+    position:fixed;inset:0;background:rgba(20,26,25,0.65);
+    display:none;align-items:center;justify-content:center;z-index:10;padding:20px;
+  }
+  .overlay.show{display:flex;}
+  .modal{
+    background:var(--paper);border-radius:4px;max-width:480px;width:100%;
+    padding:22px 22px 18px;box-shadow:0 20px 40px rgba(0,0,0,0.4);
+    max-height:85vh;overflow:auto;
+  }
+  .modal h2{font-family:'Fraunces',serif;margin:0 0 14px;font-size:1.3rem;}
+  .modal label{display:block;font-size:0.72rem;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:0.03em;color:var(--ink-soft);margin:10px 0 3px;}
+  .modal input, .modal select, .modal textarea{
+    width:100%;padding:8px 10px;border:1px solid #d8d2c2;border-radius:3px;
+    font-family:'IBM Plex Sans',sans-serif;font-size:0.88rem;background:#fff;
+  }
+  .modal textarea{resize:vertical;min-height:50px;}
+  .modal .row{display:flex;gap:10px;}
+  .modal .row > div{flex:1;}
+  .modal-actions{margin-top:16px;display:flex;justify-content:flex-end;gap:8px;}
+  .modal-actions button{
+    font-family:'IBM Plex Mono',monospace;font-size:0.8rem;padding:8px 14px;
+    border-radius:3px;border:1px solid #24302f;cursor:pointer;background:#fff;color:var(--ink);
+  }
+  .modal-actions button.primary{background:var(--ink);color:#fff;border-color:var(--ink);}
+
+  .suggest-card{
+    border:1px solid #e0dccf;border-radius:3px;padding:10px 12px;margin-bottom:10px;background:#fff;
+  }
+  .suggest-card h4{margin:0 0 4px;font-family:'Fraunces',serif;font-size:1rem;}
+  .suggest-card p{margin:0 0 6px;font-size:0.8rem;color:var(--ink-soft);}
+  .suggest-card button{font-size:0.72rem;padding:5px 10px;}
+  .loading-line{font-family:'IBM Plex Mono',monospace;font-size:0.8rem;color:var(--ink-soft);}
+</style>
+</head>
+<body>
+
+<div class="board-head">
+  <div>
+    <h1>KI-Werkzeugkasten</h1>
+    <div class="sub">Text · Bild · Video · Audio · Code — angepinnt, sortiert, erweiterbar</div>
+  </div>
+  <div style="display:flex;gap:8px;">
+    <button class="btn" id="aiUpdateBtn">✦ Mit KI aktualisieren</button>
+    <button class="btn primary" id="addBtn">+ Neues Tool</button>
+  </div>
+</div>
+
+<div class="toolbar">
+  <input type="text" id="search" placeholder="Suchen…">
+  <span id="countInfo" class="sub" style="margin-left:auto;"></span>
+</div>
+
+<div class="tabs" id="tabs"></div>
+
+<div class="board" id="board"></div>
+
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <h2>Neues Tool anpinnen</h2>
+    <label>Name</label>
+    <input type="text" id="f_name" placeholder="z.B. Perplexity">
+    <label>Kategorie</label>
+    <select id="f_cat"></select>
+    <label>Kurzbeschreibung</label>
+    <textarea id="f_desc" placeholder="Was macht das Tool?"></textarea>
+    <label>Unterrichtseinsatz</label>
+    <textarea id="f_use" placeholder="Konkretes Beispiel für den Unterricht"></textarea>
+    <div class="row">
+      <div>
+        <label>Kosten</label>
+        <select id="f_cost">
+          <option>kostenlos</option>
+          <option>freemium</option>
+          <option>kostenpflichtig</option>
+        </select>
+      </div>
+      <div>
+        <label>DSGVO</label>
+        <select id="f_dsgvo">
+          <option>EU-Server</option>
+          <option>US-Server</option>
+          <option>unklar</option>
+        </select>
+      </div>
+    </div>
+    <label>Link</label>
+    <input type="text" id="f_url" placeholder="https://…">
+    <div class="modal-actions">
+      <button id="cancelBtn">Abbrechen</button>
+      <button class="primary" id="saveBtn">Anpinnen</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="aiOverlay">
+  <div class="modal" style="max-width:560px;">
+    <h2>KI-Update</h2>
+    <p class="sub" style="color:var(--ink-soft);margin-bottom:10px;">Wähle eine Kategorie. Claude sucht aktuelle Tools und schlägt neue Karten vor.</p>
+    <select id="ai_cat" style="width:100%;padding:8px 10px;border:1px solid #d8d2c2;border-radius:3px;margin-bottom:10px;"></select>
+    <button class="btn primary" id="ai_go" style="width:100%;">Suche starten</button>
+    <div id="ai_results" style="margin-top:16px;"></div>
+    <div class="modal-actions">
+      <button id="aiCloseBtn">Schließen</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const CATS = [
+  {id:'text', label:'Text', color:'var(--c-text)'},
+  {id:'bild', label:'Bild', color:'var(--c-bild)'},
+  {id:'video', label:'Video', color:'var(--c-video)'},
+  {id:'audio', label:'Audio', color:'var(--c-audio)'},
+  {id:'code', label:'Code', color:'var(--c-code)'},
+  {id:'praesentation', label:'Präsentation', color:'var(--c-praesentation)'},
+  {id:'sonstiges', label:'Sonstiges', color:'var(--c-sonstiges)'},
+];
+
+const SEED = [
+  {id:'s1',name:'ChatGPT',cat:'text',desc:'Vielseitiger Chat-Assistent für Text, Recherche und Brainstorming.',use:'Differenzierte Aufgaben (BASIC/PLUS) für IFK-Klassen vorbereiten lassen.',cost:'freemium',dsgvo:'US-Server',url:'https://chat.openai.com'},
+  {id:'s2',name:'Claude',cat:'text',desc:'KI-Assistent, stark bei langen Dokumenten und strukturiertem Schreiben.',use:'Bildungsgangkonferenz-Protokolle aus Audiotranskripten rekonstruieren.',cost:'freemium',dsgvo:'US-Server',url:'https://claude.ai'},
+  {id:'s3',name:'AIS.chat',cat:'text',desc:'DSGVO-konformer Chat-Zugang für Schulen in NRW.',use:'Direkter Einsatz mit Schüler:innen ohne Datenschutz-Bedenken.',cost:'kostenlos',dsgvo:'EU-Server',url:'https://ais.chat'},
+  {id:'s4',name:'DeepL Write', cat:'text',desc:'Stil- und Grammatikkorrektur für deutsche und englische Texte.',use:'Schülertexte vor Abgabe sprachlich überarbeiten lassen (A2-Niveau).',cost:'freemium',dsgvo:'EU-Server',url:'https://www.deepl.com/write'},
+  {id:'s5',name:'NotebookLM',cat:'text',desc:'Fasst hochgeladene Dokumente zusammen und beantwortet Fragen dazu.',use:'Aus einer Fallstudie (z.B. Amir/KölnHandel) automatisch Lernkarten erzeugen.',cost:'kostenlos',dsgvo:'US-Server',url:'https://notebooklm.google'},
+
+  {id:'b1',name:'Midjourney',cat:'bild',desc:'Hochwertige KI-Bildgenerierung über Discord/Web.',use:'Illustrationen für Arbeitsblätter oder fiktive Firmenlogos (Kölner Fallstudien).',cost:'kostenpflichtig',dsgvo:'US-Server',url:'https://www.midjourney.com'},
+  {id:'b2',name:'Adobe Firefly',cat:'bild',desc:'Bildgenerierung mit kommerziell unbedenklicher Lizenz.',use:'Bildmaterial für Präsentationen, das rechtlich sicher verwendbar ist.',cost:'freemium',dsgvo:'US-Server',url:'https://firefly.adobe.com'},
+  {id:'b3',name:'Microsoft Designer',cat:'bild',desc:'Bild- und Grafikgenerator, in Microsoft 365 integriert.',use:'Schnelle Grafiken für Handouts direkt in PowerPoint/Word.',cost:'freemium',dsgvo:'US-Server',url:'https://designer.microsoft.com'},
+
+  {id:'v1',name:'HeyGen',cat:'video',desc:'Erzeugt Avatar-Videos aus Text inkl. Lippen-Synchronisation.',use:'Kurze Erklärvideos für den Flipped-Classroom-Einsatz erstellen.',cost:'freemium',dsgvo:'US-Server',url:'https://www.heygen.com'},
+  {id:'v2',name:'CapCut', cat:'video',desc:'Videoschnitt mit KI-Funktionen (Untertitel, Schnitt, Effekte).',use:'Schülerprojekte (z.B. Präsentationsvideos) einfach nachbearbeiten.',cost:'freemium',dsgvo:'US-Server',url:'https://www.capcut.com'},
+  {id:'v3',name:'Runway',cat:'video',desc:'KI-Videogenerierung und -bearbeitung (Text-zu-Video).',use:'Kurze Demo-Szenen für Unterrichtsbeispiele generieren.',cost:'freemium',dsgvo:'US-Server',url:'https://runwayml.com'},
+
+  {id:'a1',name:'ElevenLabs',cat:'audio',desc:'Realistische KI-Sprachsynthese und Stimmklonung.',use:'Hörtexte für IFK/DaZ-Materialien in mehreren Sprachen vertonen.',cost:'freemium',dsgvo:'US-Server',url:'https://elevenlabs.io'},
+  {id:'a2',name:'Suno',cat:'audio',desc:'Erzeugt vollständige Songs aus Textprompts.',use:'Merksätze als Lernsong vertonen (z.B. für jüngere Klassen).',cost:'freemium',dsgvo:'US-Server',url:'https://suno.com'},
+
+  {id:'c1',name:'GitHub Copilot',cat:'code',desc:'KI-Codevervollständigung direkt im Editor.',use:'Bei der Weiterentwicklung von DJTP oder Automatisierungs-Skripten unterstützen.',cost:'kostenpflichtig',dsgvo:'US-Server',url:'https://github.com/features/copilot'},
+  {id:'c2',name:'Cursor',cat:'code',desc:'KI-first Code-Editor auf VS-Code-Basis.',use:'Größere Refactorings am docx-Generator-Workflow durchführen.',cost:'freemium',dsgvo:'US-Server',url:'https://cursor.sh'},
+
+  {id:'p1',name:'Gamma',cat:'praesentation',desc:'Erstellt Präsentationen/Webseiten aus Stichpunkten.',use:'Schnellentwurf für Elternabend- oder Konferenz-Folien.',cost:'freemium',dsgvo:'US-Server',url:'https://gamma.app'},
+  {id:'p2',name:'Beautiful.ai',cat:'praesentation',desc:'Automatisch layoutete Folien mit smarten Templates.',use:'Einheitliches Design für die AG-KI-Präsentationsreihe.',cost:'kostenpflichtig',dsgvo:'US-Server',url:'https://www.beautiful.ai'},
+
+  {id:'o1',name:'Fobizz KI-Tools',cat:'sonstiges',desc:'Sammlung schulspezifischer KI-Werkzeuge (Feedback, Aufgaben, Chat).',use:'Zentraler Schüler-Hub für die AI-Projekttage nutzen.',cost:'kostenpflichtig',dsgvo:'EU-Server',url:'https://fobizz.com'},
+  {id:'o2',name:'Perplexity',cat:'sonstiges',desc:'KI-Suchmaschine mit Quellenangaben.',use:'Schüler:innen recherchieren mit Quellenprüfung für Referate.',cost:'freemium',dsgvo:'US-Server',url:'https://www.perplexity.ai'},
+
+  // --- ergänzt nach Abgleich mit lookkle.com Verzeichnis (Juli 2026) ---
+  {id:'l1',name:'Google Gemini',cat:'text',desc:'Google-Chatbot mit Workspace-Integration (Docs, Sheets, Gmail).',use:'Gemeinsam mit Kolleg:innen in Google Docs Unterrichtsentwürfe direkt kommentieren lassen.',cost:'freemium',dsgvo:'US-Server',url:'https://gemini.google.com'},
+  {id:'l2',name:'Consensus',cat:'text',desc:'Durchsucht wissenschaftliche Studien und zeigt den Grad der Übereinstimmung an.',use:'Für die OBAS-Ausbildung fachdidaktische Thesen mit Studienlage abgleichen.',cost:'freemium',dsgvo:'US-Server',url:'https://consensus.app'},
+  {id:'l3',name:'Grammarly',cat:'text',desc:'Grammatik- und Stilkorrektur für englische (und deutsche) Texte.',use:'Englische Aufgabenstellungen für HHS vor Ausgabe gegenprüfen.',cost:'freemium',dsgvo:'US-Server',url:'https://grammarly.com'},
+  {id:'l4',name:'Google Translate',cat:'text',desc:'Kostenlose, unbegrenzte Maschinenübersetzung in viele Sprachen.',use:'Schnelle Erstübersetzung von Materialien für IFK-Klassen mit vielen Herkunftssprachen.',cost:'kostenlos',dsgvo:'US-Server',url:'https://translate.google.com'},
+
+  {id:'l5',name:'Leonardo.Ai',cat:'bild',desc:'Großzügiges Gratis-Kontingent für hochwertige Bildgenerierung, kommerziell nutzbar.',use:'Illustrationen für Arbeitsblätter, die auch veröffentlicht werden dürfen.',cost:'freemium',dsgvo:'US-Server',url:'https://leonardo.ai'},
+  {id:'l6',name:'Recraft',cat:'bild',desc:'Einziges gängiges Tool mit kostenloser Vektorgrafik-(SVG)-Generierung.',use:'Skalierbare Icons/Logos für fiktive Übungsfirmen (z.B. KölnHandel GmbH) erstellen.',cost:'freemium',dsgvo:'US-Server',url:'https://recraft.ai'},
+  {id:'l7',name:'Ideogram',cat:'bild',desc:'Spezialisiert auf korrekte Textwiedergabe innerhalb generierter Bilder.',use:'Plakate/Schilder mit exaktem deutschen Text für Rollenspiel-Materialien erzeugen.',cost:'freemium',dsgvo:'US-Server',url:'https://ideogram.ai'},
+  {id:'l8',name:'Nano Banana Pro',cat:'bild',desc:'Fotorealistisches Bildmodell von Google, übersetzt auch Text in Bildern.',use:'Fotorealistische Szenenbilder für Fallstudien-Kontexte generieren.',cost:'kostenlos',dsgvo:'US-Server',url:'https://gemini.google.com'},
+
+  {id:'l9',name:'InVideo AI',cat:'video',desc:'Erstellt komplette Videos aus Text inkl. automatischem Schnitt und Sprachausgabe.',use:'Ganze Erklärvideo-Sequenz aus einem Unterrichtsskript generieren lassen.',cost:'freemium',dsgvo:'US-Server',url:'https://invideo.ai'},
+  {id:'l10',name:'Gemini Veo 3.1',cat:'video',desc:'Googles Videomodell für kurze, realistische Clips (4–8 Sek.).',use:'Kurze B-Roll-Clips als Einstieg in Präsentationen einbauen.',cost:'freemium',dsgvo:'US-Server',url:'https://gemini.google.com'},
+  {id:'l11',name:'Kling AI',cat:'video',desc:'Starker Freemium-Bewegungsgenerator, gut bei komplexen Interaktionen.',use:'Realistische Beispielszenen (z.B. Kundengespräch im Einzelhandel) visualisieren.',cost:'freemium',dsgvo:'US-Server',url:'https://klingai.com'},
+
+  {id:'l12',name:'Google Antigravity',cat:'code',desc:'Agentenbasierte IDE, in der KI-Agenten selbstständig Code planen und testen.',use:'Bei DJTP-Weiterentwicklung komplexere Automatisierungen agentisch umsetzen lassen.',cost:'kostenlos',dsgvo:'US-Server',url:'https://antigravity.dev'},
+  {id:'l13',name:'Replit AI',cat:'code',desc:'Browserbasierte Entwicklungsumgebung mit KI-Unterstützung, kein Setup nötig.',use:'Mit Schüler:innen ohne lokale Installation kleine Programmierprojekte umsetzen.',cost:'freemium',dsgvo:'US-Server',url:'https://replit.com'},
+  {id:'l14',name:'DataCamp DataLab',cat:'code',desc:'Browserbasierte Datenanalyse-Umgebung mit KI-Assistent, keine Python-Installation nötig.',use:'Für den Literacy-Tracking-Workflow Datenauswertungen ohne lokale Umgebung testen.',cost:'freemium',dsgvo:'US-Server',url:'https://www.datacamp.com/datalab'},
+
+  {id:'l15',name:'Whisper (OpenAI)',cat:'audio',desc:'Open-Source-Spracherkennung, lokal oder in Google Colab nutzbar, unbegrenzt.',use:'Audiotranskripte für Konferenzprotokolle selbst und kostenlos erzeugen.',cost:'kostenlos',dsgvo:'unklar',url:'https://github.com/openai/whisper'},
+  {id:'l16',name:'Otter.ai',cat:'audio',desc:'Automatische Mitschrift von Besprechungen inkl. Sprechererkennung.',use:'AG-KI-Sitzungen live mitschreiben lassen, danach manuell nachschärfen.',cost:'freemium',dsgvo:'US-Server',url:'https://otter.ai'},
+  {id:'l17',name:'Adobe Podcast Enhance',cat:'audio',desc:'Entfernt Hintergrundgeräusche/Hall aus Audioaufnahmen.',use:'Handy-Mitschnitte von Unterrichtsbesuchen vor der Weiterverarbeitung säubern.',cost:'freemium',dsgvo:'US-Server',url:'https://podcast.adobe.com'},
+
+  {id:'l18',name:'Canva AI',cat:'praesentation',desc:'Design-Tool mit KI-Funktionen für Folien, Grafiken und Layouts.',use:'Einheitliches, ansprechendes Layout für Elternabend- und AG-Materialien.',cost:'freemium',dsgvo:'US-Server',url:'https://canva.com'},
+
+  {id:'l19',name:'Notion AI',cat:'sonstiges',desc:'Notizen/Projektmanagement mit KI-Zusammenfassungen und Aufgabenlisten.',use:'Offene Punkte aus DJTP (M4–M6) und OBAS-Vorbereitung strukturiert verwalten.',cost:'freemium',dsgvo:'US-Server',url:'https://notion.so'},
+  {id:'l20',name:'WolframAlpha',cat:'sonstiges',desc:'Rechenmaschine für Mathematik, Statistik und exakte Fachfragen.',use:'Finanzmathematische Aufgaben (Lernfeld 7, Investition/Finanzierung) gegenrechnen.',cost:'freemium',dsgvo:'unklar',url:'https://www.wolframalpha.com'},
+];
+
+let tools = [];
+let activeCat = 'alle';
+let searchTerm = '';
+
+function catInfo(id){ return CATS.find(c=>c.id===id) || {label:id,color:'var(--c-sonstiges)'}; }
+
+async function loadTools(){
+  try{
+    const res = await window.storage.get('tools', false);
+    tools = res ? JSON.parse(res.value) : null;
+  }catch(e){ tools = null; }
+  if(!tools){
+    tools = SEED;
+    await window.storage.set('tools', JSON.stringify(tools), false);
+  }
+}
+
+async function saveTools(){
+  await window.storage.set('tools', JSON.stringify(tools), false);
+}
+
+function renderTabs(){
+  const tabs = document.getElementById('tabs');
+  let html = `<div class="tab ${activeCat==='alle'?'active':''}" data-cat="alle">Alle</div>`;
+  CATS.forEach(c=>{
+    html += `<div class="tab ${activeCat===c.id?'active':''}" data-cat="${c.id}"><span class="dot" style="background:${c.color}"></span>${c.label}</div>`;
+  });
+  tabs.innerHTML = html;
+  tabs.querySelectorAll('.tab').forEach(t=>{
+    t.onclick = ()=>{ activeCat = t.dataset.cat; renderTabs(); renderBoard(); };
+  });
+}
+
+function renderBoard(){
+  const board = document.getElementById('board');
+  let list = tools.filter(t=>{
+    const matchCat = activeCat==='alle' || t.cat===activeCat;
+    const matchSearch = !searchTerm || (t.name+t.desc+t.use).toLowerCase().includes(searchTerm.toLowerCase());
+    return matchCat && matchSearch;
+  });
+  document.getElementById('countInfo').textContent = `${list.length} Tool(s)`;
+  if(list.length===0){
+    board.innerHTML = `<div class="empty">Keine Tools gefunden. Pinn eins an!</div>`;
+    return;
+  }
+  board.innerHTML = list.map(t=>{
+    const c = catInfo(t.cat);
+    return `<div class="card" data-id="${t.id}">
+      <div class="pin"></div>
+      <button class="del" data-id="${t.id}">✕ entfernen</button>
+      <span class="cat-flag" style="background:${c.color}">${c.label}</span>
+      <h3>${escapeHtml(t.name)}</h3>
+      <p class="desc">${escapeHtml(t.desc)}</p>
+      <div class="usecase">${escapeHtml(t.use)}</div>
+      <div class="meta">
+        <span>${t.cost} · ${t.dsgvo}</span>
+        ${t.url ? `<a class="go" href="${escapeAttr(t.url)}" target="_blank">öffnen ↗</a>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+
+  board.querySelectorAll('.del').forEach(btn=>{
+    btn.onclick = async (e)=>{
+      e.stopPropagation();
+      const id = btn.dataset.id;
+      tools = tools.filter(t=>t.id!==id);
+      await saveTools();
+      renderBoard();
+    };
+  });
+}
+
+function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+function escapeAttr(s){ return escapeHtml(s); }
+
+// --- Add modal ---
+const overlay = document.getElementById('overlay');
+document.getElementById('addBtn').onclick = ()=>{
+  document.getElementById('f_cat').innerHTML = CATS.map(c=>`<option value="${c.id}">${c.label}</option>`).join('');
+  overlay.classList.add('show');
+};
+document.getElementById('cancelBtn').onclick = ()=> overlay.classList.remove('show');
+document.getElementById('saveBtn').onclick = async ()=>{
+  const name = document.getElementById('f_name').value.trim();
+  if(!name){ return; }
+  const newTool = {
+    id: 'u'+Date.now(),
+    name,
+    cat: document.getElementById('f_cat').value,
+    desc: document.getElementById('f_desc').value.trim(),
+    use: document.getElementById('f_use').value.trim(),
+    cost: document.getElementById('f_cost').value,
+    dsgvo: document.getElementById('f_dsgvo').value,
+    url: document.getElementById('f_url').value.trim(),
+  };
+  tools.push(newTool);
+  await saveTools();
+  overlay.classList.remove('show');
+  ['f_name','f_desc','f_use','f_url'].forEach(id=>document.getElementById(id).value='');
+  renderBoard();
+};
+
+// --- Search ---
+document.getElementById('search').addEventListener('input', (e)=>{
+  searchTerm = e.target.value;
+  renderBoard();
+});
+
+// --- AI Update ---
+const aiOverlay = document.getElementById('aiOverlay');
+document.getElementById('aiUpdateBtn').onclick = ()=>{
+  document.getElementById('ai_cat').innerHTML = CATS.map(c=>`<option value="${c.id}">${c.label}</option>`).join('');
+  document.getElementById('ai_results').innerHTML = '';
+  aiOverlay.classList.add('show');
+};
+document.getElementById('aiCloseBtn').onclick = ()=> aiOverlay.classList.remove('show');
+
+document.getElementById('ai_go').onclick = async ()=>{
+  const cat = document.getElementById('ai_cat').value;
+  const catLabel = catInfo(cat).label;
+  const resultsEl = document.getElementById('ai_results');
+  resultsEl.innerHTML = `<div class="loading-line">Suche aktuelle Tools für „${catLabel}“ …</div>`;
+
+  const existingNames = tools.filter(t=>t.cat===cat).map(t=>t.name).join(', ');
+
+  const prompt = `Du hilfst einem deutschen Berufsschullehrer, seine Übersicht aktueller KI-Tools zu erweitern.
+Kategorie: ${catLabel}.
+Bereits vorhanden (nicht erneut vorschlagen): ${existingNames || 'keine'}.
+Recherchiere im Web nach 3 aktuellen, relevanten KI-Tools dieser Kategorie (Stand heute), die noch nicht in der Liste sind.
+Antworte NUR mit einem JSON-Array, keine Markdown-Codeblöcke, kein Fließtext davor oder danach. Format pro Eintrag:
+{"name": "...", "desc": "Kurzbeschreibung auf Deutsch, max 1 Satz", "use": "Konkreter Unterrichtseinsatz auf Deutsch, max 1 Satz", "cost": "kostenlos|freemium|kostenpflichtig", "dsgvo": "EU-Server|US-Server|unklar", "url": "https://..."}`;
+
+  try{
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-6",
+        max_tokens: 1000,
+        messages: [{ role: "user", content: prompt }],
+        tools: [{ type: "web_search_20250305", name: "web_search" }]
+      })
+    });
+    const data = await response.json();
+    const textBlocks = (data.content || []).filter(b=>b.type==='text').map(b=>b.text).join('\n');
+    let clean = textBlocks.replace(/```json|```/g,'').trim();
+    const jsonStart = clean.indexOf('[');
+    const jsonEnd = clean.lastIndexOf(']');
+    clean = clean.slice(jsonStart, jsonEnd+1);
+    const suggestions = JSON.parse(clean);
+
+    if(!suggestions.length){
+      resultsEl.innerHTML = `<div class="loading-line">Keine neuen Vorschläge gefunden.</div>`;
+      return;
+    }
+
+    resultsEl.innerHTML = suggestions.map((s,i)=>`
+      <div class="suggest-card" data-idx="${i}">
+        <h4>${escapeHtml(s.name)}</h4>
+        <p>${escapeHtml(s.desc)}</p>
+        <p style="font-style:italic;">${escapeHtml(s.use)}</p>
+        <p>${escapeHtml(s.cost)} · ${escapeHtml(s.dsgvo)}</p>
+        <button class="btn add-suggestion" data-idx="${i}">+ Anpinnen</button>
+      </div>
+    `).join('');
+
+    resultsEl.querySelectorAll('.add-suggestion').forEach(btn=>{
+      btn.onclick = async ()=>{
+        const s = suggestions[btn.dataset.idx];
+        tools.push({
+          id: 'ai'+Date.now()+btn.dataset.idx,
+          name: s.name, cat, desc: s.desc, use: s.use, cost: s.cost, dsgvo: s.dsgvo, url: s.url
+        });
+        await saveTools();
+        renderBoard();
+        btn.textContent = '✓ angepinnt';
+        btn.disabled = true;
+      };
+    });
+  }catch(err){
+    resultsEl.innerHTML = `<div class="loading-line">Fehler bei der Suche: ${escapeHtml(String(err.message||err))}</div>`;
+  }
+};
+
+(async function init(){
+  await loadTools();
+  renderTabs();
+  renderBoard();
+})();
+</script>
+</body>
+</html>
