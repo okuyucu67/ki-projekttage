@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STUDYAI – Nie wieder Hausaufgaben vergessen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FAFAF7;
+    --paper-dim:#F1F0EA;
+    --ink:#15213A;
+    --ink-soft:#4B5468;
+    --ink-faint:#8A8F9E;
+    --hl:#D8FF4F;
+    --hl-ink:#1E2A0B;
+    --coral:#FF6552;
+    --line: rgba(21,33,58,0.12);
+    --card-bg:#FFFFFF;
+    --shadow: 0 1px 2px rgba(21,33,58,0.04), 0 8px 24px rgba(21,33,58,0.06);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter', sans-serif;
+    -webkit-font-smoothing:antialiased;
+    line-height:1.5;
+  }
+  img,svg{display:block; max-width:100%;}
+  a{color:inherit;}
+  .container{
+    max-width:1120px;
+    margin:0 auto;
+    padding:0 32px;
+  }
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12.5px;
+    font-weight:600;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:18px;
+  }
+  .eyebrow::before{
+    content:"";
+    width:20px;
+    height:2px;
+    background:var(--hl);
+    display:inline-block;
+  }
+  h1,h2,h3{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    letter-spacing:-0.01em;
+    color:var(--ink);
+  }
+  .mark{
+    background:linear-gradient(180deg, transparent 62%, var(--hl) 62%);
+    padding:0 2px;
+  }
+
+  /* ---------- NAV ---------- */
+  header{
+    position:sticky;
+    top:0;
+    z-index:50;
+    background:rgba(250,250,247,0.86);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  nav{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:18px 32px;
+    max-width:1120px;
+    margin:0 auto;
+  }
+  .logo{
+    font-family:'Fraunces', serif;
+    font-weight:700;
+    font-size:20px;
+    letter-spacing:-0.01em;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .logo-dot{
+    width:9px; height:9px; border-radius:50%;
+    background:var(--hl);
+    box-shadow:0 0 0 4px rgba(216,255,79,0.28);
+  }
+  .nav-links{
+    display:flex;
+    gap:34px;
+    list-style:none;
+    font-size:14.5px;
+    font-weight:500;
+    color:var(--ink-soft);
+  }
+  .nav-links a{ text-decoration:none; transition:color .15s;}
+  .nav-links a:hover{ color:var(--ink); }
+  .btn{
+    font-family:'Inter', sans-serif;
+    font-weight:700;
+    font-size:14.5px;
+    padding:11px 22px;
+    border-radius:8px;
+    border:none;
+    cursor:pointer;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .btn-primary{
+    background:var(--ink);
+    color:var(--paper);
+  }
+  .btn-primary:hover{ transform:translateY(-2px); box-shadow:0 8px 18px rgba(21,33,58,0.22); }
+  .btn-hl{
+    background:var(--hl);
+    color:var(--hl-ink);
+  }
+  .btn-hl:hover{ transform:translateY(-2px); box-shadow:0 8px 20px rgba(216,255,79,0.45); }
+  .btn-ghost{
+    background:transparent;
+    color:var(--ink);
+    border:1.5px solid var(--line);
+  }
+  .btn-ghost:hover{ border-color:var(--ink); }
+  .nav-cta{ display:flex; gap:10px; align-items:center; }
+  .burger{ display:none; }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    padding:96px 0 110px;
+    position:relative;
+    overflow:hidden;
+  }
+  .hero-grid{
+    display:grid;
+    grid-template-columns:1.05fr 0.85fr;
+    gap:56px;
+    align-items:center;
+  }
+  .hero h1{
+    font-size:56px;
+    line-height:1.06;
+    margin-bottom:24px;
+  }
+  .hero p.lede{
+    font-size:18px;
+    color:var(--ink-soft);
+    max-width:480px;
+    margin-bottom:36px;
+  }
+  .hero-ctas{ display:flex; gap:14px; flex-wrap:wrap; margin-bottom:38px;}
+  .hero-note{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12.5px;
+    color:var(--ink-faint);
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .hero-note .avatars{ display:flex; }
+  .hero-note .avatars span{
+    width:22px; height:22px; border-radius:50%;
+    background:var(--ink);
+    border:2px solid var(--paper);
+    margin-left:-6px;
+    display:inline-block;
+  }
+  .hero-note .avatars span:first-child{ margin-left:0; }
+
+  /* Signature visual: stacked subject cards, chaos -> order */
+  .stack{
+    position:relative;
+    height:420px;
+  }
+  .card-note{
+    position:absolute;
+    width:230px;
+    background:var(--card-bg);
+    border-radius:14px;
+    box-shadow:var(--shadow);
+    padding:20px 20px 22px;
+    border:1px solid var(--line);
+  }
+  .card-note .subject{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    font-weight:600;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--ink-faint);
+    margin-bottom:10px;
+  }
+  .card-note .task{
+    font-family:'Fraunces', serif;
+    font-size:17px;
+    font-weight:500;
+    margin-bottom:14px;
+    line-height:1.3;
+  }
+  .card-note .row{ display:flex; align-items:center; gap:9px; font-size:12.5px; color:var(--ink-soft); margin-bottom:7px;}
+  .check{
+    width:15px; height:15px; border-radius:50%;
+    border:1.5px solid var(--line);
+    flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .check.done{ background:var(--hl); border-color:var(--hl); }
+  .check.done::after{ content:"✓"; font-size:10px; color:var(--hl-ink); font-weight:700; }
+  .card-1{ top:0; left:20px; transform:rotate(-6deg); z-index:2;}
+  .card-2{ top:70px; left:150px; transform:rotate(4deg); z-index:3;}
+  .card-3{ top:230px; left:40px; transform:rotate(-3deg); z-index:1;}
+  .card-2 .task, .card-2 .subject{ color:var(--paper); }
+  .card-2{ background:var(--ink); }
+  .card-2 .row{ color:rgba(250,250,247,0.72); }
+  .card-2 .check{ border-color:rgba(250,250,247,0.4); }
+
+  /* ---------- SECTION GENERIC ---------- */
+  section{ padding:96px 0; }
+  .section-head{ max-width:640px; margin-bottom:56px; }
+  .section-head h2{ font-size:38px; line-height:1.15; }
+  .section-head p{ color:var(--ink-soft); font-size:16.5px; margin-top:16px; }
+
+  /* ---------- PROBLEM ---------- */
+  .problem{ background:var(--paper-dim); }
+  .problem-grid{
+    display:grid;
+    grid-template-columns:1.1fr 1fr 1fr;
+    gap:24px;
+  }
+  .p-card{
+    background:var(--card-bg);
+    border-radius:16px;
+    border:1px solid var(--line);
+    padding:32px 28px;
+  }
+  .p-card.big{
+    background:var(--ink);
+    color:var(--paper);
+  }
+  .p-card.big .stat{
+    font-family:'Fraunces', serif;
+    font-size:64px;
+    font-weight:600;
+    color:var(--hl);
+    line-height:1;
+    margin-bottom:14px;
+  }
+  .p-card.big p{ color:rgba(250,250,247,0.78); font-size:15px; }
+  .p-card h3{ font-size:19px; margin-bottom:12px; font-weight:600; }
+  .p-card p{ color:var(--ink-soft); font-size:15px; }
+  .p-card .tag{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    font-weight:600;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--coral);
+    margin-bottom:12px;
+    display:block;
+  }
+
+  /* ---------- VISION ---------- */
+  .vision-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:64px;
+    align-items:start;
+  }
+  .vision-copy p{ font-size:17px; color:var(--ink-soft); margin-bottom:20px; }
+  .pillars{ display:flex; flex-direction:column; gap:0; }
+  .pillar{
+    display:flex;
+    gap:18px;
+    padding:22px 0;
+    border-top:1px solid var(--line);
+  }
+  .pillar:last-child{ border-bottom:1px solid var(--line); }
+  .pillar .num{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    color:var(--ink-faint);
+    padding-top:3px;
+  }
+  .pillar strong{ font-size:16.5px; font-weight:600; display:block; }
+
+  /* ---------- STEPS ---------- */
+  .steps{
+    background:var(--ink);
+    color:var(--paper);
+  }
+  .steps .eyebrow{ color:rgba(250,250,247,0.6); }
+  .steps .eyebrow::before{ background:var(--hl); }
+  .steps .section-head h2{ color:var(--paper); }
+  .steps .section-head p{ color:rgba(250,250,247,0.68); }
+  .steps-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:1px;
+    background:rgba(250,250,247,0.14);
+    border-radius:16px;
+    overflow:hidden;
+  }
+  .step{
+    background:#1B2946;
+    padding:36px 30px 40px;
+  }
+  .step .step-num{
+    font-family:'Fraunces', serif;
+    font-size:15px;
+    color:var(--hl);
+    margin-bottom:26px;
+    font-weight:600;
+  }
+  .step h3{ color:var(--paper); font-size:21px; margin-bottom:12px; }
+  .step p{ color:rgba(250,250,247,0.66); font-size:15px; }
+
+  /* ---------- AI POWER ---------- */
+  .power-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:24px;
+  }
+  .power-card{
+    padding:32px 26px;
+    border-radius:16px;
+    border:1px solid var(--line);
+    background:var(--card-bg);
+  }
+  .power-card .icon{
+    width:44px; height:44px;
+    border-radius:10px;
+    background:var(--paper-dim);
+    display:flex; align-items:center; justify-content:center;
+    margin-bottom:22px;
+    font-size:20px;
+  }
+  .power-card h3{ font-size:19px; margin-bottom:10px; }
+  .power-card p{ color:var(--ink-soft); font-size:15px; }
+
+  /* ---------- DIFFERENCE ---------- */
+  .diff{ background:var(--paper-dim); }
+  .diff-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:64px;
+    align-items:center;
+  }
+  .diff-copy p{ font-size:17px; color:var(--ink-soft); margin-bottom:16px; }
+  .compare{
+    background:var(--card-bg);
+    border-radius:16px;
+    border:1px solid var(--line);
+    overflow:hidden;
+  }
+  .compare-row{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+  }
+  .compare-row + .compare-row{ border-top:1px solid var(--line); }
+  .compare-cell{
+    padding:18px 22px;
+    font-size:14.5px;
+  }
+  .compare-cell.head{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    font-weight:600;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--ink-faint);
+    background:var(--paper-dim);
+  }
+  .compare-cell.no{ color:var(--ink-faint); }
+  .compare-cell.no::before{ content:"— "; }
+  .compare-cell.yes{ color:var(--ink); font-weight:600; }
+  .compare-cell.yes::before{ content:"✓ "; color:var(--hl-ink); background:var(--hl); border-radius:50%; padding:1px 5px; font-size:10px; margin-right:4px; }
+  .subjects{ display:flex; flex-wrap:wrap; gap:10px; margin-top:24px; }
+  .subject-tag{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12.5px;
+    font-weight:500;
+    padding:8px 14px;
+    border-radius:20px;
+    border:1px solid var(--line);
+    background:var(--card-bg);
+    color:var(--ink-soft);
+  }
+
+  /* ---------- CTA / MISSION ---------- */
+  .cta-section{
+    background:var(--ink);
+    color:var(--paper);
+    text-align:center;
+    padding:110px 0;
+  }
+  .cta-section .eyebrow{ justify-content:center; color:rgba(250,250,247,0.6); }
+  .cta-section h2{
+    color:var(--paper);
+    font-size:44px;
+    max-width:640px;
+    margin:0 auto 20px;
+    line-height:1.12;
+  }
+  .cta-section > .container > p{
+    color:rgba(250,250,247,0.7);
+    font-size:17px;
+    max-width:520px;
+    margin:0 auto 48px;
+  }
+  .mv-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:20px;
+    max-width:640px;
+    margin:0 auto 48px;
+  }
+  .mv-card{
+    background:#1B2946;
+    border-radius:14px;
+    padding:28px 24px;
+    text-align:left;
+  }
+  .mv-card .label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--hl);
+    margin-bottom:10px;
+    display:block;
+  }
+  .mv-card p{ color:rgba(250,250,247,0.75); font-size:14.5px; }
+
+  /* ---------- FOOTER ---------- */
+  footer{
+    padding:40px 0;
+    border-top:1px solid var(--line);
+  }
+  .footer-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-size:13.5px;
+    color:var(--ink-faint);
+  }
+  .footer-row .logo{ font-size:16px; }
+
+  /* ---------- REVEAL ---------- */
+  .reveal{ opacity:0; transform:translateY(18px); transition:opacity .6s ease, transform .6s ease; }
+  .reveal.in{ opacity:1; transform:translateY(0); }
+
+  /* ---------- RESPONSIVE ---------- */
+  @media (max-width:860px){
+    .nav-links{ display:none; }
+    .hero-grid{ grid-template-columns:1fr; }
+    .hero h1{ font-size:40px; }
+    .stack{ height:340px; margin-top:20px; }
+    .card-note{ width:190px; padding:16px; }
+    .problem-grid{ grid-template-columns:1fr; }
+    .vision-grid{ grid-template-columns:1fr; gap:40px; }
+    .steps-grid{ grid-template-columns:1fr; }
+    .power-grid{ grid-template-columns:1fr; }
+    .diff-grid{ grid-template-columns:1fr; gap:40px; }
+    .mv-grid{ grid-template-columns:1fr; }
+    section{ padding:64px 0; }
+    .cta-section h2{ font-size:32px; }
+    .section-head h2{ font-size:29px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <nav>
+    <div class="logo"><span class="logo-dot"></span>STUDYAI</div>
+    <ul class="nav-links">
+      <li><a href="#problem">Problem</a></li>
+      <li><a href="#vision">Vision</a></li>
+      <li><a href="#funktion">Funktion</a></li>
+      <li><a href="#unterschied">Unterschied</a></li>
+    </ul>
+    <div class="nav-cta">
+      <a href="#start" class="btn btn-hl">Jetzt starten</a>
+    </div>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="container hero-grid">
+    <div>
+      <div class="eyebrow">KI-Lernbegleiter für Schüler:innen</div>
+      <h1>Nie wieder <span class="mark">Hausaufgaben</span> vergessen.</h1>
+      <p class="lede">STUDYAI ist dein persönlicher KI-Assistent für einen stressfreien Schulalltag – für Organisation, Planung und echten Lernerfolg.</p>
+      <div class="hero-ctas">
+        <a href="#start" class="btn btn-primary">STUDYAI entdecken →</a>
+        <a href="#funktion" class="btn btn-ghost">So funktioniert's</a>
+      </div>
+      <div class="hero-note">
+        <span class="avatars"><span></span><span></span><span></span></span>
+        Für alle Fächer – von Mathematik bis Literatur
+      </div>
+    </div>
+    <div class="stack">
+      <div class="card-note card-1">
+        <div class="subject">Mathematik</div>
+        <div class="task">Textaufgaben Kapitel 4</div>
+        <div class="row"><span class="check done"></span> Aufgabe erfasst</div>
+        <div class="row"><span class="check done"></span> Lernplan erstellt</div>
+        <div class="row"><span class="check"></span> Fällig: Donnerstag</div>
+      </div>
+      <div class="card-note card-2">
+        <div class="subject">Biologie</div>
+        <div class="task">Zellaufbau verstehen</div>
+        <div class="row"><span class="check done"></span> Lernkarte erstellt</div>
+        <div class="row"><span class="check"></span> Wiederholung morgen</div>
+      </div>
+      <div class="card-note card-3">
+        <div class="subject">Deutsch</div>
+        <div class="task">Interpretation abgeben</div>
+        <div class="row"><span class="check done"></span> Erinnerung aktiv</div>
+        <div class="row"><span class="check"></span> Fällig: Montag</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="problem" id="problem">
+  <div class="container">
+    <div class="section-head reveal">
+      <div class="eyebrow">Das Problem</div>
+      <h2>Wenn das Chaos regiert</h2>
+    </div>
+    <div class="problem-grid">
+      <div class="p-card big reveal">
+        <div class="stat">60%+</div>
+        <p>der Schüler:innen fühlen sich mit Hausaufgaben überfordert – zu viel Stoff, zu wenig Struktur.</p>
+      </div>
+      <div class="p-card reveal">
+        <span class="tag">Termin-Dschungel</span>
+        <h3>Aufgaben gehen unter</h3>
+        <p>Ohne System werden Prioritäten nicht erkannt und Aufgaben schlicht vergessen – Chaos ist vorprogrammiert.</p>
+      </div>
+      <div class="p-card reveal">
+        <span class="tag">Die Folgen</span>
+        <h3>Frust statt Fortschritt</h3>
+        <p>Lernfrust, schlechte Noten und ständiger Zeitdruck belasten Schüler:innen täglich aufs Neue.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="vision">
+  <div class="container vision-grid">
+    <div class="vision-copy reveal">
+      <div class="eyebrow">Unsere Vision</div>
+      <h2 style="font-size:34px; margin-bottom:22px;">Der digitale Lernbegleiter</h2>
+      <p>STUDYAI ist mehr als eine Erinnerungs-App. Es ist ein intelligenter Lern-Coach, der Hausaufgaben plant, Termine einhält und individuelle Lernpläne in Echtzeit erstellt.</p>
+    </div>
+    <div class="pillars reveal">
+      <div class="pillar">
+        <div class="num">01</div>
+        <div><strong>Vom Aufgaben-Management zum Lern-Coach</strong></div>
+      </div>
+      <div class="pillar">
+        <div class="num">02</div>
+        <div><strong>Struktur statt Stress – jederzeit</strong></div>
+      </div>
+      <div class="pillar">
+        <div class="num">03</div>
+        <div><strong>Individuelle Lernpläne in Echtzeit</strong></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="steps" id="funktion">
+  <div class="container">
+    <div class="section-head reveal">
+      <div class="eyebrow">So funktioniert's</div>
+      <h2>Drei Schritte zum stressfreien Schulalltag</h2>
+      <p>Von der Eingabe bis zur intelligenten Erinnerung – alles läuft automatisch und individuell angepasst.</p>
+    </div>
+    <div class="steps-grid reveal">
+      <div class="step">
+        <div class="step-num">01</div>
+        <h3>Eingabe</h3>
+        <p>Aufgaben, Termine und Fächer einfach eintragen – in Sekunden statt Minuten.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <h3>KI-Analyse</h3>
+        <p>STUDYAI erkennt Prioritäten und erstellt automatisch deinen persönlichen Lernplan.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <h3>Erinnerung</h3>
+        <p>Rechtzeitige, individuelle Erinnerungen sorgen dafür, dass nichts mehr untergeht.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <div class="section-head reveal">
+      <div class="eyebrow">Die Power von KI</div>
+      <h2>Verstehen statt Abschreiben</h2>
+    </div>
+    <div class="power-grid">
+      <div class="power-card reveal">
+        <div class="icon">💬</div>
+        <h3>Echtes Verstehen</h3>
+        <p>Präzise, schrittweise Erklärungen statt einfacher Lösungen – Schüler:innen lernen wirklich.</p>
+      </div>
+      <div class="power-card reveal">
+        <div class="icon">📈</div>
+        <h3>Personalisierte Lernpfade</h3>
+        <p>Die App passt sich automatisch dem individuellen Lerntempo an – kein Schüler bleibt zurück.</p>
+      </div>
+      <div class="power-card reveal">
+        <div class="icon">🧠</div>
+        <h3>Visuelles Lernen</h3>
+        <p>Komplexe Themen werden in Lernkarten und Grafiken übersetzt – verständlich und einprägsam.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="diff" id="unterschied">
+  <div class="container diff-grid">
+    <div class="diff-copy reveal">
+      <div class="eyebrow">Der Unterschied</div>
+      <h2 style="font-size:34px; margin-bottom:22px;">Was STUDYAI einzigartig macht</h2>
+      <p>Während andere Apps nur erinnern, erklärt STUDYAI. Während andere listen, plant STUDYAI. Im Fokus steht echtes Verständnis und nachhaltiger Lernerfolg – nicht schnelles Abschreiben.</p>
+      <div class="subjects">
+        <span class="subject-tag">Mathematik</span>
+        <span class="subject-tag">Naturwissenschaften</span>
+        <span class="subject-tag">Sprachen</span>
+        <span class="subject-tag">Literatur</span>
+        <span class="subject-tag">+ alle weiteren Fächer</span>
+      </div>
+    </div>
+    <div class="compare reveal">
+      <div class="compare-row">
+        <div class="compare-cell head">Andere Apps</div>
+        <div class="compare-cell head">STUDYAI</div>
+      </div>
+      <div class="compare-row">
+        <div class="compare-cell no">Erinnern nur</div>
+        <div class="compare-cell yes">Erklärt Schritt für Schritt</div>
+      </div>
+      <div class="compare-row">
+        <div class="compare-cell no">Listen Aufgaben auf</div>
+        <div class="compare-cell yes">Plant individuelle Lernpfade</div>
+      </div>
+      <div class="compare-row">
+        <div class="compare-cell no">Ein starres Tempo</div>
+        <div class="compare-cell yes">Passt sich dem Lerntempo an</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-section" id="start">
+  <div class="container">
+    <div class="eyebrow">🎯 Mission &nbsp;·&nbsp; 💡 Vision</div>
+    <h2>Bereit für den Lern-Erfolg?</h2>
+    <p>Unsere Mission: Bildung intuitiv, effizient und motivierend gestalten. Nie wieder Hausaufgaben vergessen.</p>
+    <div class="mv-grid">
+      <div class="mv-card">
+        <span class="label">Mission</span>
+        <p>Bildung für alle zugänglich und stressfrei machen.</p>
+      </div>
+      <div class="mv-card">
+        <span class="label">Vision</span>
+        <p>Der KI-Lernbegleiter für jede Schülerin und jeden Schüler.</p>
+      </div>
+    </div>
+    <a href="#" class="btn btn-hl">🚀 Jetzt starten</a>
+  </div>
+</section>
+
+<footer>
+  <div class="container footer-row">
+    <div class="logo"><span class="logo-dot"></span>STUDYAI</div>
+    <div>© 2026 STUDYAI. Alle Rechte vorbehalten.</div>
+  </div>
+</footer>
+
+<script>
+  const revealEls = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+    });
+  }, { threshold: 0.15 });
+  revealEls.forEach(el => io.observe(el));
+</script>
+
+</body>
+</html>
