@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Höhle der Löwen – Unsere KI-Start-ups</title>
+<style>
+  :root{
+    --buehne:#14161A; --panel:#1F2228; --rot:#E30613; --rot-dk:#B00510;
+    --weiss:#F5F6F7; --dim:#A9AEB6; --silber:#C7CBD1; --linie:#2C3038;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    background:var(--buehne); color:var(--weiss); overflow:hidden;
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:-0.01em;
+  }
+  body.running{cursor:none}
+  body.showcursor{cursor:default}
+
+  /* Spotlight-Atmosphäre */
+  .spot{position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:radial-gradient(60% 55% at 50% 38%, rgba(227,6,19,0.16), transparent 70%);
+    animation:drift 18s ease-in-out infinite alternate}
+  @keyframes drift{from{transform:translate(-4%, -3%) scale(1.05)}to{transform:translate(5%,4%) scale(1.15)}}
+
+  #stage{position:fixed;inset:0;z-index:1;display:flex;align-items:center;justify-content:center;padding:6vh 7vw}
+  .slide{width:100%;max-width:1500px;opacity:0}
+  .slide.in{animation:rein .7s cubic-bezier(.2,.7,.2,1) forwards}
+  @keyframes rein{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+
+  .kicker{font-size:1.5vw;letter-spacing:.32em;text-transform:uppercase;color:var(--rot);font-weight:800}
+  .dim{color:var(--dim)}
+
+  /* Intro / Outro */
+  .center{text-align:center}
+  .titel{font-size:8vw;line-height:.98;font-weight:900;margin:2vh 0}
+  .titel em{font-style:normal;color:var(--rot)}
+  .sub{font-size:2.6vw;color:var(--dim);font-weight:600}
+  .rule{width:120px;height:6px;background:var(--rot);margin:3.4vh auto;border-radius:3px}
+  .datum{font-size:1.3vw;color:var(--dim);letter-spacing:.1em;margin-top:2vh}
+
+  /* Divider */
+  .divider{text-align:center}
+  .divider .gr{font-size:2vw;letter-spacing:.3em;text-transform:uppercase;font-weight:800;color:var(--acc)}
+  .divider .big{font-size:11vw;font-weight:900;line-height:1;margin:1vh 0}
+  .divider .team{font-size:2.6vw;color:var(--dim);font-weight:600}
+
+  /* Result */
+  .result{display:grid;grid-template-columns:1.15fr .85fr;gap:4.5vw;align-items:center}
+  .r-left .team{font-size:1.5vw;letter-spacing:.12em;text-transform:uppercase;color:var(--acc);font-weight:800}
+  .r-left .firma{font-size:5vw;font-weight:900;line-height:1.0;margin:1vh 0 .4vh}
+  .r-left .tagline{font-size:1.6vw;color:var(--dim);font-weight:500;font-style:italic;margin-bottom:1.6vh}
+  .points{display:grid;grid-template-columns:auto 1fr;gap:1vh 1.4vw;max-width:46ch;margin-top:1vh}
+  .points .lbl{font-size:1.15vw;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--acc);white-space:nowrap;padding-top:.2em}
+  .points .txt{font-size:1.45vw;line-height:1.3;color:var(--weiss);font-weight:500}
+  .r-left .web{display:inline-flex;align-items:center;gap:.5em;margin-top:2.4vh;font-size:1.35vw;
+    color:var(--weiss);background:rgba(255,255,255,.07);border:1px solid var(--linie);
+    padding:.5em .9em;border-radius:999px;font-weight:600}
+  .r-left .web b{color:var(--acc)}
+
+  .r-right{display:flex;align-items:center;justify-content:center}
+  .logo-box{width:100%;aspect-ratio:1/1;max-height:60vh;border-radius:24px;overflow:hidden;
+    display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(150deg, color-mix(in srgb, var(--acc) 22%, var(--panel)), var(--panel));
+    border:1px solid var(--linie)}
+  .logo-box img{width:100%;height:100%;object-fit:contain;padding:7%}
+  .logo-type{font-size:3.8vw;font-weight:900;color:var(--weiss);text-align:center;padding:0 6%;line-height:1.05}
+  .logo-type small{display:block;font-size:1.1vw;letter-spacing:.28em;text-transform:uppercase;color:var(--acc);margin-top:1.4vh;font-weight:800}
+
+  /* Video */
+  .videowrap{width:100%;text-align:center}
+  .videowrap .cap{font-size:2vw;font-weight:800;margin-bottom:2vh;color:var(--acc)}
+  .videowrap video{max-width:100%;max-height:76vh;border-radius:18px;border:1px solid var(--linie);background:#000}
+
+  /* Outro-Liste */
+  .teams{display:flex;flex-wrap:wrap;gap:1.2vw;justify-content:center;margin-top:4vh}
+  .teams .chip{font-size:1.9vw;font-weight:800;padding:.5em 1em;border-radius:14px;background:var(--panel);border:1px solid var(--linie)}
+
+  /* Fortschritt + Marke */
+  .bar{position:fixed;left:0;bottom:0;height:6px;background:var(--rot);width:0;z-index:5;transition:width .12s linear}
+  .brand{position:fixed;right:3vw;bottom:3.2vh;z-index:5;font-size:1.1vw;color:var(--dim);letter-spacing:.06em}
+  .brand b{color:var(--rot)}
+  .live{position:fixed;left:3vw;top:3.2vh;z-index:5;display:flex;align-items:center;gap:.6em;font-size:1vw;letter-spacing:.24em;text-transform:uppercase;color:var(--dim);font-weight:800}
+  .live i{width:.8em;height:.8em;border-radius:50%;background:var(--rot);animation:puls 1.6s infinite}
+  @keyframes puls{0%,100%{opacity:1}50%{opacity:.25}}
+
+  /* Pause-Hinweis */
+  #pause{position:fixed;inset:0;z-index:8;display:none;align-items:center;justify-content:center;
+    background:rgba(20,22,26,.55);backdrop-filter:blur(2px)}
+  #pause.on{display:flex}
+  #pause .badge{font-size:3vw;font-weight:900;letter-spacing:.1em;color:var(--weiss);
+    border:2px solid var(--rot);border-radius:18px;padding:.5em 1.2em;background:rgba(31,34,40,.85)}
+  #pause .badge b{color:var(--rot)}
+
+  /* Startbildschirm */
+  #start{position:fixed;inset:0;z-index:20;background:var(--buehne);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:3vh}
+  #start h1{font-size:5vw;font-weight:900}#start h1 em{font-style:normal;color:var(--rot)}
+  #start p{color:var(--dim);font-size:1.7vw;max-width:40ch}
+  #start button{font:inherit;font-size:2vw;font-weight:800;color:#fff;background:var(--rot);border:none;
+    padding:.7em 1.6em;border-radius:14px;cursor:pointer}
+  #start button:hover{background:var(--rot-dk)}
+  #start button:focus-visible{outline:3px solid var(--silber);outline-offset:3px}
+  #start .hint{font-size:1.1vw;color:var(--dim)}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+</head>
+<body>
+<div class="spot"></div>
+
+<!-- ================= HIER INHALTE PFLEGEN ================= -->
+<script>
+const PROJEKT = {
+  kicker: "Projekttage · Berufskolleg Deutzer Freiheit",
+  titel:  "Höhle der Löwen",
+  sub:    "Unsere KI-Start-ups",
+  datum:  "13.–15. Juli 2026 · Höhere Handelsschule",
+  seite:  "okuyucu67.github.io/ki-projekttage"
+};
+
+// Felder pro Gruppe:
+//  tagline = kurzer Slogan (optional) · problem/loesung/fuerWen/kiHilfe = je ein Satz (leer = wird weggelassen)
+//  logo    = Bild-Dateiname IM SELBEN ORDNER (z. B. "kabelkraft.png"). Leer = Schrift-Kachel. Falsch/fehlend -> Schrift-Kachel.
+//  website = volle URL oder leer · video = .mp4-Dateiname IM SELBEN ORDNER oder leer (fehlt -> Folie wird übersprungen)
+const GRUPPEN = [
+  { team:"Team Ahmet, Leon & Bedirhan", firma:"Kabelkraft", acc:"#E30613",
+    tagline:"Zukunft gestalten im Elektrohandwerk",
+    problem:"Wir suchen Azubis für unseren Elektrobetrieb.",
+    loesung:"Kooperation mit Schulen, Schnuppertage, gute Übernahmechancen und Werbung in sozialen Medien.",
+    fuerWen:"Arbeitgeber und Arbeitnehmer",
+    kiHilfe:"Als Chatbot auf unserer Website.",
+    logo:"kabelkraft.png", website:"", video:"kabelkraft_werbevideo.mp4" },
+
+  { team:"Team Bawar & Emre", firma:"study.ai", acc:"#3FA7A0",
+    tagline:"Nie wieder Hausaufgaben vergessen",
+    problem:"Schüler sind mit Hausaufgaben und Terminen überfordert – zu viel Stoff, zu wenig Struktur.",
+    loesung:"Ein KI-Lernbegleiter, der Hausaufgaben plant, an Termine erinnert und einen persönlichen Lernplan erstellt.",
+    fuerWen:"Schülerinnen und Schüler ab der 5. Klasse",
+    kiHilfe:"Plant Hausaufgaben, erinnert an Termine und erstellt einen persönlichen Lernplan.",
+    logo:"studyai.png", website:"https://okuyucu67.github.io/ki-projekttage/studyai.html", video:"" },
+
+  { team:"Team Mustafa & Berkay", firma:"Muskay", acc:"#2E86C1",
+    tagline:"Heizung & Sanitär – Ihr Hilfspartner",
+    problem:"Zu viele Kundenanrufe, bei denen es sich um kleine Probleme handelt.",
+    loesung:"Ein KI-Assistent, der Anrufe entgegennimmt und so weit wie möglich weiterhilft.",
+    fuerWen:"Menschen mit Sanitär- und Heizungsproblemen zu Hause",
+    kiHilfe:"Übernimmt den größten Teil, löst Kleines Schritt für Schritt und leitet Größeres an einen echten Mitarbeiter weiter.",
+    logo:"muskay.png", website:"", video:"" },
+
+  { team:"Team Nils", firma:"WebSprout", acc:"#3AAA55",
+    tagline:"Ihre Ideen. Unsere Websites. Ihr Erfolg.",
+    problem:"Unternehmen mit veralteten oder gar keinen Websites.",
+    loesung:"Wir erstellen professionelle Websites für Unternehmen, Geschäfte und Start-ups.",
+    fuerWen:"Geschäfte, Start-ups und bestehende Unternehmen",
+    kiHilfe:"Hilft bei der Erstellung und personalisierten Gestaltung der Websites.",
+    logo:"websprout.png", website:"", video:"" },
+
+  // DeineTasche.de: noch keine Unterlagen. Zeile komplett löschen, um die Gruppe aus der Präsentation zu nehmen.
+  { team:"Team Ali", firma:"DeineTasche.de", acc:"#E8A33D",
+    tagline:"", problem:"", loesung:"", fuerWen:"", kiHilfe:"",
+    logo:"", website:"", video:"" }
+];
+
+// Anzeigedauer in Sekunden. videoMax = Sicherheits-Obergrenze; normal endet die Video-Folie automatisch.
+const DAUER = { intro:7, divider:3.5, result:12, outro:11, videoMax:120 };
+// ========================================================
+</script>
+
+<div id="start">
+  <div class="kicker" id="s-kicker"></div>
+  <h1 id="s-titel"></h1>
+  <p>Selbstlaufende Ergebnis-Präsentation für das Smartboard.<br>Läuft danach in Dauerschleife.</p>
+  <button id="startBtn">▶ Präsentation starten</button>
+  <div class="hint">Tipp: Vollbild startet automatisch · Leertaste = Pause · ← → = blättern · F = Vollbild</div>
+</div>
+
+<div id="stage"></div>
+<div class="bar" id="bar"></div>
+<div class="live" id="live"><i></i><span id="live-text">Präsentation</span></div>
+<div class="brand"><b>Gemeinsam. Besser. Lernen.</b></div>
+<div id="pause"><div class="badge"><b>⏸</b> Pause</div></div>
+
+<script>
+const stage=document.getElementById('stage');
+const bar=document.getElementById('bar');
+const liveText=document.getElementById('live-text');
+const pauseEl=document.getElementById('pause');
+const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+// Startbildschirm füllen
+document.getElementById('s-kicker').textContent=PROJEKT.kicker;
+document.getElementById('s-titel').innerHTML=PROJEKT.titel.replace(/Löwen/,'<em>Löwen</em>');
+
+// --- Folienfolge bauen ---
+const slides=[];
+slides.push({type:'intro', dur:DAUER.intro});
+GRUPPEN.forEach((g,i)=>{
+  slides.push({type:'divider', g, nr:i+1, dur:DAUER.divider});
+  slides.push({type:'result',  g, nr:i+1, dur:DAUER.result});
+  if(g.video) slides.push({type:'video', g, nr:i+1, dur:DAUER.videoMax});
+});
+slides.push({type:'outro', dur:DAUER.outro});
+
+// Fällt der Logo-Dateiname weg oder ist er falsch: auf Schrift-Kachel zurückfallen.
+function logoFail(img, firma){
+  img.parentNode.innerHTML='<div class="logo-type">'+firma+'<small>KI-Start-up</small></div>';
+}
+
+function liveLabel(s){
+  if(s.type==='intro')  return 'Start';
+  if(s.type==='outro')  return 'Finale';
+  return 'Gruppe '+s.nr+' / '+GRUPPEN.length;
+}
+
+function render(s){
+  if(s.type==='intro'){
+    return `<div class="slide center">
+      <div class="kicker">${esc(PROJEKT.kicker)}</div>
+      <div class="titel">${PROJEKT.titel.replace(/Löwen/,'<em>Löwen</em>')}</div>
+      <div class="rule"></div>
+      <div class="sub">${esc(PROJEKT.sub)}</div>
+      <div class="datum">${esc(PROJEKT.datum)}</div>
+    </div>`;
+  }
+  if(s.type==='divider'){
+    const g=s.g;
+    return `<div class="slide divider" style="--acc:${g.acc}">
+      <div class="gr">Gruppe ${s.nr} von ${GRUPPEN.length}</div>
+      <div class="big">${esc(g.firma)}</div>
+      <div class="team">${esc(g.team)}</div>
+    </div>`;
+  }
+  if(s.type==='result'){
+    const g=s.g;
+    const firmaSafe=esc(g.firma).replace(/'/g,'&#39;');
+    const logo = g.logo
+      ? `<div class="logo-box"><img src="${esc(g.logo)}" alt="Logo ${esc(g.firma)}" onerror="logoFail(this,'${firmaSafe}')"></div>`
+      : `<div class="logo-box"><div class="logo-type">${esc(g.firma)}<small>KI-Start-up</small></div></div>`;
+    const tag = g.tagline ? `<div class="tagline">„${esc(g.tagline)}"</div>` : '';
+    const row = (lbl,val)=> val ? `<span class="lbl">${lbl}</span><span class="txt">${esc(val)}</span>` : '';
+    const pts = [row('Problem',g.problem),row('Lösung',g.loesung),row('Für wen',g.fuerWen),row('So hilft KI',g.kiHilfe)].filter(Boolean).join('');
+    const points = pts ? `<div class="points">${pts}</div>` : '';
+    const web  = g.website ? `<div class="web"><b>🌐</b> ${esc(g.website.replace(/^https?:\/\//,''))}</div>` : '';
+    return `<div class="slide result" style="--acc:${g.acc}">
+      <div class="r-left">
+        <div class="team">${esc(g.team)}</div>
+        <div class="firma">${esc(g.firma)}</div>
+        ${tag}${points}${web}
+      </div>
+      <div class="r-right">${logo}</div>
+    </div>`;
+  }
+  if(s.type==='video'){
+    const g=s.g;
+    return `<div class="slide videowrap" style="--acc:${g.acc}">
+      <div class="cap">${esc(g.firma)} – Werbespot</div>
+      <video id="vid" src="${esc(g.video)}" autoplay muted playsinline></video>
+    </div>`;
+  }
+  if(s.type==='outro'){
+    const chips=GRUPPEN.map(g=>`<div class="chip" style="color:${g.acc}">${esc(g.firma)}</div>`).join('');
+    return `<div class="slide center">
+      <div class="kicker">Danke an alle Teams</div>
+      <div class="titel" style="font-size:6vw">Fünf Ideen.<br>Ein Projekt.</div>
+      <div class="teams">${chips}</div>
+      <div class="datum">Mehr auf ${esc(PROJEKT.seite)}</div>
+    </div>`;
+  }
+  return '';
+}
+
+let idx=0, rafId=null, slideStart=0, pausedAt=0, paused=false, curDur=0, curVideo=null;
+
+function show(i){
+  cancelAnimationFrame(rafId);
+  idx=(i+slides.length)%slides.length;
+  const s=slides[idx];
+  stage.innerHTML=render(s);
+  liveText.textContent=liveLabel(s);
+  const el=stage.querySelector('.slide');
+  requestAnimationFrame(()=>el.classList.add('in'));
+
+  curDur=s.dur*1000;
+  curVideo=stage.querySelector('#vid');
+  if(curVideo){
+    curVideo.onended=()=>next();
+    curVideo.onerror=()=>next();          // fehlende/kaputte Datei -> sofort weiter
+    const p=curVideo.play&&curVideo.play();
+    if(p&&p.catch) p.catch(()=>{});
+  }
+
+  slideStart=performance.now();
+  paused=false; pauseEl.classList.remove('on');
+  bar.style.width='0%';
+  rafId=requestAnimationFrame(tick);
+}
+
+function tick(){
+  rafId=requestAnimationFrame(tick);
+  if(paused) return;
+  let p;
+  if(curVideo && isFinite(curVideo.duration) && curVideo.duration>0){
+    p=curVideo.currentTime/curVideo.duration;
+    bar.style.width=(Math.min(1,p)*100)+'%';
+    if(performance.now()-slideStart >= curDur) next();   // Notbremse bei Stall
+  } else {
+    p=(performance.now()-slideStart)/curDur;
+    bar.style.width=(Math.min(1,p)*100)+'%';
+    if(p>=1) next();
+  }
+}
+
+function next(){ show(idx+1); }
+function prev(){ show(idx-1); }
+
+function togglePause(){
+  if(!paused){
+    paused=true; pausedAt=performance.now();
+    pauseEl.classList.add('on');
+    if(curVideo) curVideo.pause();
+  } else {
+    slideStart+=performance.now()-pausedAt;   // Pausenzeit sauber herausrechnen
+    paused=false;
+    pauseEl.classList.remove('on');
+    if(curVideo){ const p=curVideo.play&&curVideo.play(); if(p&&p.catch) p.catch(()=>{}); }
+  }
+}
+
+function goFullscreen(){
+  const el=document.documentElement;
+  (el.requestFullscreen||el.webkitRequestFullscreen||function(){}).call(el);
+}
+
+document.getElementById('startBtn').onclick=()=>{
+  document.getElementById('start').style.display='none';
+  document.body.classList.add('running');
+  goFullscreen();
+  show(0);
+};
+
+document.addEventListener('keydown',e=>{
+  if(e.code==='Space'){ e.preventDefault(); togglePause(); }
+  else if(e.code==='ArrowRight'){ e.preventDefault(); next(); }
+  else if(e.code==='ArrowLeft'){ e.preventDefault(); prev(); }
+  else if(e.key==='f'||e.key==='F'){ goFullscreen(); }
+});
+
+// Cursor am Smartboard nach 3 s Ruhe ausblenden.
+let cursorTimer=null;
+document.addEventListener('mousemove',()=>{
+  document.body.classList.add('showcursor');
+  clearTimeout(cursorTimer);
+  cursorTimer=setTimeout(()=>document.body.classList.remove('showcursor'),3000);
+});
+</script>
+</body>
+</html>
