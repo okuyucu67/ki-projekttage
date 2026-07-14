@@ -47,6 +47,10 @@
   .tabs button[aria-selected="true"]{background:var(--rot);border-color:var(--rot);color:#fff}
   .tabs button[aria-selected="true"] small{color:#ffd6d9}
   .tabs button:focus-visible{outline:3px solid var(--anthra);outline-offset:2px}
+  .tabs a.toolbtn{flex:1;padding:12px 6px;border:1.5px solid var(--anthra);background:var(--anthra);border-radius:var(--radius);font-weight:600;font-size:.9rem;color:#fff;text-align:center;text-decoration:none;transition:.15s;display:block}
+  .tabs a.toolbtn small{display:block;font-weight:400;font-size:.72rem;color:#c9c9c9}
+  .tabs a.toolbtn:hover{background:#000;border-color:#000}
+  .tabs a.toolbtn:focus-visible{outline:3px solid var(--rot);outline-offset:2px}
 
   /* Schritte */
   .tag{display:none}
@@ -147,6 +151,7 @@
   <button role="tab" data-tag="1" aria-selected="false">Tag 1<small>Verstehen</small></button>
   <button role="tab" data-tag="2" aria-selected="false">Tag 2<small>Bauen</small></button>
   <button role="tab" data-tag="3" aria-selected="false">Tag 3<small>Pitchen</small></button>
+  <a class="toolbtn" href="ki-tools-board.html" target="_blank" rel="noopener">KI-Tools ↗<small>Werkzeugkasten</small></a>
 </div>
 
 <!-- ================= TAG 1 ================= -->
